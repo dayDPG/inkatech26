@@ -1,5 +1,5 @@
 package inkatech.detective.config;
 
-public class variable {
+public class Variable {
     
 }
