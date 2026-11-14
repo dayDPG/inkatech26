@@ -65,6 +65,10 @@ public final class CatalogoVariables {
         return List.copyOf(variables.values());
     }
 
+    public List<VariableConfig> obtenerTodas() {
+        return listar();
+    }
+
     public List<VariableConfig> listarPorGrupo(String grupo) {
         return variables.values().stream()
                 .filter(variable -> variable.grupo().equals(grupo))
@@ -73,6 +77,10 @@ public final class CatalogoVariables {
 
     public Optional<VariableConfig> buscar(String id) {
         return Optional.ofNullable(variables.get(id));
+    }
+
+    public Optional<VariableConfig> obtenerPorId(String id) {
+        return buscar(id);
     }
 
     private static Map<String, VariableConfig> createVariables() {

@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
@@ -164,6 +165,10 @@ public final class GiovanniCsvReader {
         }
         try {
             return OffsetDateTime.parse(valor).toLocalDate();
+        } catch (DateTimeParseException ignorado) {
+        }
+        try {
+            return LocalDateTime.parse(valor.replace(' ', 'T')).toLocalDate();
         } catch (DateTimeParseException exception) {
             throw new IllegalArgumentException("Fecha inválida en CSV: " + fechaBruta, exception);
         }

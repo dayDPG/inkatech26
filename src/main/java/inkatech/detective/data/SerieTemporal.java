@@ -34,6 +34,10 @@ public record SerieTemporal(String variableId, String unidad, List<PuntoTemporal
                 .toList());
     }
 
+    public SerieTemporal filtrarPorRango(LocalDate desde, LocalDate hasta) {
+        return entre(desde, hasta);
+    }
+
     public SerieTemporal sinFaltantes() { //elimina los NoN
         return conPuntos(puntos.stream()
                 .filter(punto -> !punto.esFaltante())
