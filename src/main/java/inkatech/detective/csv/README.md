@@ -14,6 +14,6 @@ We are gonna analyze three different data types, the chlorophyll, the sea surfac
 | North precipitation (Tumbes - Piura) | GPM_3IMERGDL v07 Late daily | -81.5,-6.5,-79,-3.5 | mm/day | 2002-01-01 | 2026-11-13 |
 | North center precipitation (Lambayeque - Ancash) | GPM_3IMERGDL v07 Late daily | -80.5,-10,-77.5,-6.5 | mm/day | 2002-01-01 | 2026-11-13|
 | Lima precipitation | GPM_3IMERGDL v07 Late daily | -77.3,-12.5,-76.7,-11.5 | mm/day | 2002-01-01 | 2026-11-13 |
-| Precipitation validation |  GPM_3IMERGDL v07 Final Mensual| -81.5,-6.5,-79,-3.5 | mm/hr |2002-01-01 | 2025-09-30 |
-| Wind | MERRA-2 M2TMNXSLV v5.12.4| -85.0342,-12.3926,-76.5527,-3.3838 | m/s | 2002-01-01 | 2026-09-30 |
+| Precipitation validation |  GPM_3IMERGM v07 Final Mensual| -81.5,-6.5,-79,-3.5 | mm/hr |2002-01-01 | 2025-09-30 |
+| Wind | MERRA-2 M2TMNXSLV v5.12.4| -170,-5,-120,5 | m/s | 2002-01-01 | 2026-09-30 |
 
