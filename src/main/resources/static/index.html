@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Explora señales de El Niño en el océano y la costa peruana.">
+    <title>Detective del Clima</title>
+    <link rel="stylesheet" href="/css/tokens.css">
+    <link rel="stylesheet" href="/css/app.css">
+    <script defer src="/vendor/plotly-basic-4.1.1.min.js"></script>
+    <script defer src="/js/app.js"></script>
+</head>
+<body>
+    <header class="site-header" aria-label="Cabecera principal">
+        <span class="wordmark">Detective del Clima</span>
+        <span class="edition">Perú · 2002–2026</span>
+    </header>
+
+    <main id="contenido">
+        <section class="introduction" aria-labelledby="page-title">
+            <p class="introduction__context">Océano, atmósfera y costa peruana</p>
+            <div class="introduction__layout">
+                <h1 id="page-title">Leamos las señales del océano.</h1>
+                <p class="introduction__summary">
+                    Compara temperatura del mar, lluvia, viento y clorofila para reconocer cambios
+                    históricos asociados a El Niño. La evidencia describe tendencias; no es un pronóstico.
+                </p>
+            </div>
+        </section>
+
+        <section class="workbench" aria-labelledby="workbench-title">
+            <header class="workbench__header">
+                <div>
+                    <p class="workbench__label">Mesa de análisis</p>
+                    <h2 id="workbench-title">Una serie, un periodo, una lectura clara.</h2>
+                </div>
+                <p class="engine-status" id="plotly-status" role="status" aria-live="polite">
+                    Verificando motor gráfico…
+                </p>
+            </header>
+
+            <div class="workbench__body">
+                <aside class="variable-index" aria-label="Variables disponibles">
+                    <p class="variable-index__heading">Señales disponibles</p>
+                    <ol>
+                        <li><span>01</span> Temperatura del mar</li>
+                        <li><span>02</span> Precipitación</li>
+                        <li><span>03</span> Viento zonal</li>
+                        <li><span>04</span> Clorofila-a</li>
+                    </ol>
+                </aside>
+
+                <div class="chart-stage" id="series-chart" aria-label="Área del gráfico de serie temporal">
+                    <div class="chart-stage__placeholder">
+                        <span class="chart-stage__marker" aria-hidden="true"></span>
+                        <p>El gráfico aparecerá aquí cuando elijas una variable.</p>
+                        <small>La selección de variable, región y periodo llega en el siguiente paso.</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="method-note" aria-labelledby="method-title">
+            <h2 id="method-title">Qué estamos midiendo</h2>
+            <p>
+                La pendiente resume el cambio por década. Mann-Kendall evalúa si la tendencia es
+                estadísticamente significativa y Theil-Sen reduce la influencia de valores extremos.
+            </p>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>
+            Datos: NASA Giovanni — MODIS-Aqua, GPM IMERG y MERRA-2. Análisis reproducible con
+            Spring Boot, Apache Commons Math y Plotly.js local. Esta herramienta explora evidencia
+            histórica; no estima daños ni reemplaza los comunicados de ENFEN.
+        </p>
+    </footer>
+
+    <noscript>Esta aplicación necesita JavaScript para dibujar las series interactivas.</noscript>
+</body>
+</html>
