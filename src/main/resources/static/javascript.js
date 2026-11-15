@@ -1,27 +1,58 @@
 (() => {
+    const DEMOS = [
+        {
+            id: "elnino-2017",
+            titulo: "El Niño costero de 2017",
+            descripcion: "Explora cómo cambiaron las lluvias del norte antes, durante y después del evento costero de 2017.",
+            variableId: "precipitation-norte",
+            desde: "2015-01-01",
+            hasta: "2018-12-31",
+            evento: { inicio: "2017-01-01", fin: "2017-06-30" },
+            preguntas: [
+                "¿La anomalía se separa de cero durante el evento?",
+                "¿Qué tan extremo es el mes más lluvioso?",
+                "¿El viento y el mar se mueven juntos?"
+            ]
+        },
+        {
+            id: "elnino-2023-24",
+            titulo: "El Niño 2023-24",
+            descripcion: "Compara la temperatura superficial del mar antes y durante el episodio de 2023-24.",
+            variableId: "sea-surface-temperature-total",
+            desde: "2021-01-01",
+            hasta: "2024-11-30",
+            evento: { inicio: "2023-03-01", fin: "2024-06-30" },
+            preguntas: [
+                "¿La anomalía se mantiene por encima de cero durante el evento?",
+                "¿En qué mes alcanza su valor más alto?",
+                "¿Qué rezago muestra la mayor asociación con el viento?"
+            ]
+        },
+        {
+            id: "elnino-2026",
+            titulo: "El evento actual (2026)",
+            descripcion: "Observa la evolución reciente de la temperatura del mar y el tramo señalado desde febrero de 2026.",
+            variableId: "sea-surface-temperature-total",
+            desde: "2024-01-01",
+            hasta: "2026-08-31",
+            evento: { inicio: "2026-02-01", fin: null },
+            preguntas: [
+                "¿La anomalía aumenta desde febrero de 2026?",
+                "¿Cómo se compara el último mes con su historial?",
+                "¿Qué asociaciones aparecen en el periodo elegido?"
+            ]
+        }
+    ];
     const GROUP_LABELS = {
         "sea-surface-temperature": "Temperatura del mar",
         "precipitation": "Precipitación",
         "eastward-wind": "Viento zonal",
         "chlorophyll-a": "Clorofila-a"
     };
-    const DEMOS = {
-        "elnino-2017": {
-            variable: "sea-surface-temperature",
-            region: "sea-surface-temperature-total",
-            desde: "2017-01-01",
-            hasta: "2017-12-31"
-        },
-        "elnino-2023-24": {
-            variable: "sea-surface-temperature",
-            region: "sea-surface-temperature-total",
-            desde: "2023-01-01",
-            hasta: "2024-11-30"
-        }
-    };
     const GROUP_ORDER = Object.keys(GROUP_LABELS);
     const estado = { variable: "", region: "", desde: "", hasta: "" };
     const catalogo = [];
+    let demoActiva = null;
     const elements = {
         plotlyStatus: document.querySelector("#plotly-status"),
         form: document.querySelector("#series-form"),
@@ -37,7 +68,12 @@
         seriesChart: document.querySelector("#series-chart"),
         anomalyChart: document.querySelector("#anomaly-chart"),
         relations: document.querySelector("#relations-list"),
-        presets: document.querySelectorAll("[data-preset]")
+        demoOptions: document.querySelector("#demo-options"),
+        demoGuide: document.querySelector("#demo-guide"),
+        demoTitle: document.querySelector("#demo-guide-title"),
+        demoDescription: document.querySelector("#demo-guide-description"),
+        demoQuestions: document.querySelector("#demo-guide-questions"),
+        exitDemo: document.querySelector("#exit-demo")
     };
 
     function cssToken(name) {
@@ -62,6 +98,36 @@
         button.disabled = nextState === "loading";
         button.setAttribute("aria-disabled", String(button.disabled));
         button.querySelector(".action-button__label").textContent = label;
+    }
+
+    function renderDemoOptions() {
+        elements.demoOptions.replaceChildren(...DEMOS.map(demo => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.dataset.preset = demo.id;
+            button.textContent = demo.titulo;
+            return button;
+        }));
+    }
+
+    function renderDemoGuide(demo) {
+        elements.demoTitle.textContent = demo.titulo;
+        elements.demoDescription.textContent = demo.descripcion;
+        elements.demoQuestions.replaceChildren(...demo.preguntas.map(pregunta => {
+            const item = document.createElement("li");
+            item.textContent = pregunta;
+            return item;
+        }));
+        elements.demoGuide.hidden = false;
+    }
+
+    function quitarDemo() {
+        demoActiva = null;
+        elements.demoGuide.hidden = true;
+        if (typeof window.Plotly === "undefined") return;
+        [elements.seriesChart, elements.anomalyChart]
+            .filter(chart => chart.classList.contains("js-plotly-plot"))
+            .forEach(chart => window.Plotly.relayout(chart, { shapes: [], annotations: [] }));
     }
 
     function variablesForGroup(group) {
@@ -154,7 +220,55 @@
         return new Intl.NumberFormat("es-PE", { maximumSignificantDigits: digits }).format(value);
     }
 
-    async function drawChart(target, serie, title, zeroLine = false) {
+    function inicioMesSiguiente(fecha) {
+        const [year, month] = fecha.split("-").map(Number);
+        return new Date(Date.UTC(year, month, 1)).toISOString().slice(0, 10);
+    }
+
+    function rangoEvento(demo, serie) {
+        if (!demo) return null;
+        const ultimaFecha = serie.puntos
+            .filter(point => Number.isFinite(point.valor))
+            .reduce((latest, point) => point.fecha > latest ? point.fecha : latest, "");
+        const fechaFin = demo.evento.fin || ultimaFecha;
+        if (!fechaFin) return null;
+        return {
+            inicio: demo.evento.inicio,
+            finExclusivo: inicioMesSiguiente(fechaFin)
+        };
+    }
+
+    function decoracionEvento(evento) {
+        if (!evento) return { shapes: [], annotations: [] };
+        return {
+            shapes: [{
+                type: "rect",
+                xref: "x",
+                yref: "paper",
+                x0: evento.inicio,
+                x1: evento.finExclusivo,
+                y0: 0,
+                y1: 1,
+                fillcolor: cssToken("--plot-warning"),
+                opacity: 0.15,
+                line: { width: 0 },
+                layer: "below"
+            }],
+            annotations: [{
+                x: evento.inicio,
+                xref: "x",
+                y: 1,
+                yref: "paper",
+                yshift: -8,
+                xanchor: "left",
+                text: "Evento (aprox.)",
+                showarrow: false,
+                font: { color: cssToken("--plot-ink"), size: 11 }
+            }]
+        };
+    }
+
+    async function drawChart(target, serie, title, zeroLine = false, evento = null) {
         if (typeof window.Plotly === "undefined") return;
         const points = serie.puntos.filter(point => Number.isFinite(point.valor));
         if (points.length === 0) {
@@ -167,6 +281,7 @@
         }
 
         target.replaceChildren();
+        const decoracion = decoracionEvento(evento);
         await window.Plotly.newPlot(target, [{
             x: points.map(point => point.fecha),
             y: points.map(point => point.valor),
@@ -188,6 +303,8 @@
                 zeroline: zeroLine,
                 zerolinecolor: cssToken("--plot-warning")
             },
+            shapes: decoracion.shapes,
+            annotations: decoracion.annotations,
             showlegend: false
         }, {
             responsive: true,
@@ -206,7 +323,8 @@
             document.querySelector("#trend-interval").textContent = "—";
             document.querySelector("#significance-light").textContent = "Sin resultado";
             document.querySelector("#significance-light").dataset.state = "unavailable";
-            document.querySelector("#trend-explanation").textContent = analisis.mensajeTendencia;
+            document.querySelector("#trend-explanation").textContent =
+                `Datos insuficientes para estimar la tendencia. ${analisis.mensajeTendencia || ""}`.trim();
             return;
         }
 
@@ -302,16 +420,35 @@
     }
 
     async function renderAnalysis(analisis) {
+        const evento = rangoEvento(demoActiva, analisis.serie);
         await Promise.all([
-            drawChart(elements.seriesChart, analisis.serie, "Serie observada"),
-            drawChart(elements.anomalyChart, analisis.anomalias, "Anomalía mensual", true)
+            drawChart(elements.seriesChart, analisis.serie, "Serie observada", false, evento),
+            drawChart(elements.anomalyChart, analisis.anomalias, "Anomalía mensual", true, evento)
         ]);
         renderTrend(analisis);
         renderEvent(analisis);
         renderRelations(analisis);
-        elements.message.textContent =
-            `${analisis.serie.puntos.length.toLocaleString("es-PE")} observaciones en el periodo; resultados calculados con la misma selección.`;
+        const observaciones = analisis.serie.puntos.filter(point => Number.isFinite(point.valor)).length;
+        elements.message.textContent = observaciones === 0
+            ? "Datos insuficientes: no hay observaciones válidas en el periodo seleccionado."
+            : `${observaciones.toLocaleString("es-PE")} observaciones en el periodo; resultados calculados con la misma selección.`;
         setButtonState(elements.submit, "success", "Análisis actualizado");
+    }
+
+    function esErrorDeDatosInsuficientes(mensaje) {
+        return /datos insuficientes|no hay datos|no hay observaciones|no se puede calcular/i.test(mensaje);
+    }
+
+    function mostrarDatosInsuficientes(mensaje) {
+        elements.message.textContent = `Datos insuficientes para completar el análisis. ${mensaje}`;
+        elements.message.dataset.state = "error";
+        [elements.seriesChart, elements.anomalyChart].forEach(chart => {
+            const empty = document.createElement("p");
+            empty.className = "chart-empty";
+            empty.textContent = "No hay observaciones suficientes para mostrar este gráfico.";
+            chart.replaceChildren(empty);
+        });
+        setButtonState(elements.submit, "error", "Intentar de nuevo");
     }
 
     async function analizar() {
@@ -328,27 +465,40 @@
             await renderAnalysis(analisis);
             return true;
         } catch (error) {
-            elements.message.textContent = error.message;
-            elements.message.dataset.state = "error";
-            setButtonState(elements.submit, "error", "Intentar de nuevo");
+            if (esErrorDeDatosInsuficientes(error.message)) {
+                mostrarDatosInsuficientes(error.message);
+            } else {
+                elements.message.textContent = error.message;
+                elements.message.dataset.state = "error";
+                setButtonState(elements.submit, "error", "Intentar de nuevo");
+            }
             return false;
         }
     }
 
-    function aplicarPreset(id) {
-        const preset = DEMOS[id];
+    async function aplicarPreset(id) {
+        const preset = DEMOS.find(demo => demo.id === id);
         if (!preset) return;
-        elements.variable.value = preset.variable;
-        populateRegions(preset.region);
+        const variable = catalogo.find(item => item.id === preset.variableId);
+        if (!variable) {
+            elements.message.textContent = `La variable ${preset.variableId} no está disponible en el catálogo.`;
+            elements.message.dataset.state = "error";
+            return;
+        }
+        demoActiva = preset;
+        elements.variable.value = variable.grupo;
+        populateRegions(preset.variableId);
         elements.from.value = preset.desde;
         elements.to.value = preset.hasta;
-        estado.variable = preset.variable;
-        estado.region = preset.region;
-        estado.desde = preset.desde;
-        estado.hasta = preset.hasta;
+        captureSelection();
+        renderDemoGuide(preset);
         const menu = document.querySelector(".project-menu");
         menu.open = false;
-        analizar();
+        await analizar();
+        elements.demoGuide.scrollIntoView({
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+            block: "start"
+        });
     }
 
     function setPlotlyStatus() {
@@ -361,8 +511,12 @@
         elements.plotlyStatus.dataset.state = "ready";
     }
 
-    elements.variable.addEventListener("change", () => populateRegions());
+    elements.variable.addEventListener("change", () => {
+        quitarDemo();
+        populateRegions();
+    });
     elements.region.addEventListener("change", () => {
+        quitarDemo();
         const variable = selectedVariable();
         if (!variable) return;
         estado.variable = variable.grupo;
@@ -370,18 +524,26 @@
         setPeriodFromVariable(variable);
         showVariableExplanation(variable);
     });
-    elements.from.addEventListener("change", captureSelection);
-    elements.to.addEventListener("change", captureSelection);
+    [elements.from, elements.to].forEach(control => {
+        control.addEventListener("input", () => {
+            quitarDemo();
+            captureSelection();
+        });
+        control.addEventListener("change", captureSelection);
+    });
     elements.form.addEventListener("submit", event => {
         event.preventDefault();
         analizar();
     });
-    elements.presets.forEach(button => {
-        button.addEventListener("click", () => aplicarPreset(button.dataset.preset));
+    elements.demoOptions.addEventListener("click", event => {
+        const button = event.target.closest("[data-preset]");
+        if (button) aplicarPreset(button.dataset.preset);
     });
+    elements.exitDemo.addEventListener("click", quitarDemo);
 
     async function initialize() {
         setPlotlyStatus();
+        renderDemoOptions();
         try {
             catalogo.push(...await fetchJson("/api/variables"));
             populateVariables();

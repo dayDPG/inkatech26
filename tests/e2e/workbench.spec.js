@@ -41,24 +41,104 @@ test("actualizar variable y fechas hace una solicitud conjunta", async ({ page }
     expect(analysisCalls.get(page)).toBe(2);
 });
 
-test("las demos son presets que actualizan la selección y analizan una vez", async ({ page }) => {
+test("cada demo actualiza el periodo, muestra la guía y sombrea el evento", async ({ page }) => {
+    const presets = [
+        {
+            titulo: "El Niño costero de 2017",
+            variable: "precipitation",
+            region: "precipitation-norte",
+            desde: "2015-01-01",
+            hasta: "2018-12-31",
+            inicio: "2017-01-01",
+            fin: "2017-07-01"
+        },
+        {
+            titulo: "El Niño 2023-24",
+            variable: "sea-surface-temperature",
+            region: "sea-surface-temperature-total",
+            desde: "2021-01-01",
+            hasta: "2024-11-30",
+            inicio: "2023-03-01",
+            fin: "2024-07-01"
+        },
+        {
+            titulo: "El evento actual (2026)",
+            variable: "sea-surface-temperature",
+            region: "sea-surface-temperature-total",
+            desde: "2024-01-01",
+            hasta: "2026-08-31",
+            inicio: "2026-02-01",
+            fin: "2026-09-01"
+        }
+    ];
+
+    for (const preset of presets) {
+        await page.locator(".project-menu summary").click();
+        await page.getByRole("button", { name: preset.titulo }).click();
+        await expect(page.locator("#variable-select")).toHaveValue(preset.variable);
+        await expect(page.locator("#region-select")).toHaveValue(preset.region);
+        await expect(page.locator("#date-from")).toHaveValue(preset.desde);
+        await expect(page.locator("#date-to")).toHaveValue(preset.hasta);
+        await expect(page.locator("#demo-guide")).toBeVisible();
+        await expect(page.locator("#demo-guide-title")).toHaveText(preset.titulo);
+        await expect(page.locator("#demo-guide-description")).not.toBeEmpty();
+        await expect(page.locator("#demo-guide-questions li")).toHaveCount(3);
+        await expect(page.locator("#series-chart.js-plotly-plot")).toBeVisible();
+        await expect(page.locator("#anomaly-chart.js-plotly-plot")).toBeVisible();
+        await expect(page.locator("#series-message")).toContainText("observaciones en el periodo", { timeout: 30000 });
+        await expect(page.locator(".project-menu")).not.toHaveAttribute("open", "");
+
+        const chartShapes = await page.locator("#series-chart").evaluate(chart => ({
+            shapes: chart._fullLayout.shapes,
+            annotations: chart._fullLayout.annotations
+        }));
+        const anomalyShapes = await page.locator("#anomaly-chart").evaluate(chart => chart._fullLayout.shapes);
+        expect(chartShapes.shapes).toHaveLength(1);
+        expect(chartShapes.shapes[0]).toMatchObject({
+            type: "rect",
+            xref: "x",
+            yref: "paper",
+            x0: preset.inicio,
+            x1: preset.fin,
+            y0: 0,
+            y1: 1,
+            opacity: 0.15
+        });
+        expect(chartShapes.annotations[0].text).toBe("Evento (aprox.)");
+        expect(anomalyShapes).toHaveLength(1);
+    }
+
+    expect(analysisCalls.get(page)).toBe(4);
+});
+
+test("cambiar manualmente las fechas quita la guía y el sombreado", async ({ page }) => {
     await page.locator(".project-menu summary").click();
-    await page.getByRole("button", { name: "El Niño costero 2017" }).click();
-    await expect(page.locator("#date-from")).toHaveValue("2017-01-01");
-    await expect(page.locator("#date-to")).toHaveValue("2017-12-31");
-    await expect(page.locator("#series-message")).toContainText("observaciones en el periodo", { timeout: 30000 });
-    await expect(page.locator("#event-value")).toContainText("2017");
-    await expect(page.locator("#event-zscore")).not.toHaveText("—");
-    await expect(page.locator(".project-menu")).not.toHaveAttribute("open", "");
-    expect(analysisCalls.get(page)).toBe(2);
+    await page.getByRole("button", { name: "El Niño costero de 2017" }).click();
+    await expect(page.locator("#demo-guide")).toBeVisible();
+    await page.locator("#date-from").fill("2016-01-01");
+
+    await expect(page.locator("#demo-guide")).toBeHidden();
+    await expect.poll(() => page.locator("#series-chart").evaluate(chart => chart._fullLayout.shapes))
+        .toEqual([]);
+    await expect.poll(() => page.locator("#anomaly-chart").evaluate(chart => chart._fullLayout.shapes))
+        .toEqual([]);
+});
+
+test("muestra un mensaje claro si una demo no tiene datos suficientes", async ({ page }) => {
+    await page.route(url => url.pathname === "/api/analisis"
+        && url.searchParams.get("var") === "precipitation-norte", route => route.fulfill({
+        status: 400,
+        contentType: "application/json",
+        body: JSON.stringify({ mensaje: "No hay datos de la variable en el periodo seleccionado." })
+    }));
 
     await page.locator(".project-menu summary").click();
-    await page.getByRole("button", { name: "El Niño 2023–24" }).click();
-    await expect(page.locator("#date-from")).toHaveValue("2023-01-01");
-    await expect(page.locator("#date-to")).toHaveValue("2024-11-30");
-    await expect(page.locator("#series-message")).toContainText("observaciones en el periodo", { timeout: 30000 });
-    await expect(page.locator("#event-value")).toContainText("2024");
-    expect(analysisCalls.get(page)).toBe(3);
+    await page.getByRole("button", { name: "El Niño costero de 2017" }).click();
+    await expect(page.locator("#series-message"))
+        .toContainText("Datos insuficientes para completar el análisis.");
+    await expect(page.locator("#series-chart"))
+        .toContainText("No hay observaciones suficientes para mostrar este gráfico.");
+    await expect(page.locator("#demo-guide")).toBeVisible();
 });
 
 test("la tendencia de lluvia usa la unidad mensual y las relaciones comparten el rango", async ({ page }) => {
