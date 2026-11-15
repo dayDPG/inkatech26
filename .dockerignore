@@ -1,0 +1,13 @@
+.git
+.github
+.idea
+.claude
+.env
+.env.*
+target
+node_modules
+test-results
+playwright-report
+*.log
+*.iml
+.DS_Store
