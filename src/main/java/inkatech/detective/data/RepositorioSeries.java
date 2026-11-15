@@ -15,11 +15,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class RepositorioSeries {
 
+    private final AgregadorMensual agregadorMensual;
+
+    public RepositorioSeries(AgregadorMensual agregadorMensual) {
+        this.agregadorMensual = Objects.requireNonNull(agregadorMensual);
+    }
+
     public SerieTemporal obtener(VariableConfig variable) {
         Objects.requireNonNull(variable, "La variable es obligatoria");
         try {
             Path ruta = resolverRuta(variable.archivo());
-            return GiovanniCsvReader.leer(ruta, variable);
+            SerieTemporal serie = GiovanniCsvReader.leer(ruta, variable);
+            if (variable.grupo().equals("precipitation")) {
+                return agregadorMensual.normalizarPrecipitacionMensual(serie);
+            }
+            return serie;
         } catch (IOException e) {
             throw new IllegalStateException("No se pudo cargar la serie: " + variable.id(), e);
         }
