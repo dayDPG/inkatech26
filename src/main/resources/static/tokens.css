@@ -17,7 +17,7 @@
     --color-warning: oklch(48% 0.105 77);
     --color-warning-soft: oklch(92% 0.04 77);
     /* Plotly 4 does not parse oklch values; keep this compatibility bridge aligned with the palette. */
-    --plot-paper: #fffdf7;
+    --plot-paper: #ffffff;
     --plot-ink: #1b2732;
     --plot-rule: #c9c1aa;
     --plot-accent: #007079;
@@ -25,13 +25,13 @@
 
     --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
     --font-body: Aptos, "IBM Plex Sans", sans-serif;
-    --text-xs: 0.75rem;
-    --text-sm: 0.875rem;
+    --text-xs: 0.875rem;
+    --text-sm: 1rem;
     --text-base: 1rem;
     --text-lg: 1.25rem;
-    --text-xl: 1.563rem;
-    --text-2xl: 1.953rem;
-    --text-display: clamp(2.75rem, 7vw, 7.5rem);
+    --text-xl: 1.25rem;
+    --text-2xl: 2rem;
+    --text-display: 3rem;
 
     --space-2xs: 0.25rem;
     --space-xs: 0.5rem;
@@ -43,7 +43,7 @@
     --space-3xl: 4rem;
     --space-4xl: 6rem;
 
-    --radius-sm: 0.125rem;
+    --radius-sm: 0.25rem;
     --rule-thin: 0.0625rem;
     --rule-strong: 0.125rem;
     --page-gutter: clamp(1rem, 4vw, 4rem);
