@@ -40,23 +40,118 @@
             </header>
 
             <div class="workbench__body">
-                <aside class="variable-index" aria-label="Variables disponibles">
-                    <p class="variable-index__heading">Señales disponibles</p>
-                    <ol>
-                        <li><span>01</span> Temperatura del mar</li>
-                        <li><span>02</span> Precipitación</li>
-                        <li><span>03</span> Viento zonal</li>
-                        <li><span>04</span> Clorofila-a</li>
-                    </ol>
+                <aside class="control-panel" aria-label="Controles de exploración">
+                    <form id="series-form" novalidate>
+                        <div class="field">
+                            <label for="variable-select">Variable</label>
+                            <select id="variable-select" name="variable" required aria-describedby="variable-help">
+                                <option value="">Cargando variables…</option>
+                            </select>
+                            <small id="variable-help">Elige la señal ambiental que quieres explorar.</small>
+                        </div>
+
+                        <div class="field">
+                            <label for="region-select">Región y producto</label>
+                            <select id="region-select" name="region" required aria-describedby="region-help" disabled>
+                                <option value="">Selecciona primero una variable</option>
+                            </select>
+                            <small id="region-help">Cada opción corresponde a una serie disponible.</small>
+                        </div>
+
+                        <div class="period-fields">
+                            <div class="field">
+                                <label for="date-from">Desde</label>
+                                <input id="date-from" name="desde" type="date" required>
+                            </div>
+                            <div class="field">
+                                <label for="date-to">Hasta</label>
+                                <input id="date-to" name="hasta" type="date" required>
+                            </div>
+                        </div>
+
+                        <button class="action-button" id="series-submit" type="submit">
+                            <span class="action-button__label">Actualizar análisis</span>
+                        </button>
+                        <p class="form-message" id="series-message" aria-live="polite"></p>
+                    </form>
                 </aside>
 
-                <div class="chart-stage" id="series-chart" aria-label="Área del gráfico de serie temporal">
-                    <div class="chart-stage__placeholder">
-                        <span class="chart-stage__marker" aria-hidden="true"></span>
-                        <p>El gráfico aparecerá aquí cuando elijas una variable.</p>
-                        <small>La selección de variable, región y periodo llega en el siguiente paso.</small>
+                <div class="analysis-stage">
+                    <div class="chart-stage" id="series-chart" aria-label="Gráfico de serie temporal">
+                        <div class="chart-empty" id="chart-empty">
+                            <p>Preparando la primera serie…</p>
+                            <small>Los datos se cargan desde la API del proyecto.</small>
+                        </div>
                     </div>
+
+                    <section class="trend-panel" id="trend-panel" aria-labelledby="trend-title" aria-live="polite">
+                        <header>
+                            <div>
+                                <p class="trend-panel__label">Lectura estadística</p>
+                                <h3 id="trend-title">Tendencia pendiente</h3>
+                            </div>
+                            <span class="significance-light" id="significance-light">Sin calcular</span>
+                        </header>
+                        <dl class="trend-metrics">
+                            <div><dt>Pendiente por década</dt><dd id="trend-slope">—</dd></div>
+                            <div><dt>Valor p</dt><dd id="trend-pvalue">—</dd></div>
+                            <div><dt>Intervalo del 95 %</dt><dd id="trend-interval">—</dd></div>
+                        </dl>
+                        <p class="trend-panel__explanation" id="trend-explanation">
+                            Selecciona una serie para interpretar su cambio histórico.
+                        </p>
+                    </section>
                 </div>
+            </div>
+        </section>
+
+        <section class="variable-cards" aria-labelledby="variables-title">
+            <header class="section-heading">
+                <h2 id="variables-title">Las cuatro pistas</h2>
+                <p>Cada variable cuenta una parte distinta de la historia ambiental.</p>
+            </header>
+            <div class="variable-cards__grid" id="variable-cards" aria-live="polite"></div>
+        </section>
+
+        <section class="relations" aria-labelledby="relations-title">
+            <header class="section-heading">
+                <h2 id="relations-title">Relaciones y rezagos</h2>
+                <p>Explora si una señal antecede a otra. Una correlación describe asociación, no causalidad.</p>
+            </header>
+
+            <div class="causal-chain" aria-label="Cadena de señales propuesta">
+                <span>Viento</span><span aria-hidden="true">→</span><span>Mar</span>
+                <span aria-hidden="true">→</span><span>Lluvia</span><span aria-hidden="true">→</span><span>Clorofila</span>
+            </div>
+
+            <form class="relation-form" id="relation-form">
+                <div class="field">
+                    <label for="relation-pair">Relación</label>
+                    <select id="relation-pair" name="relation">
+                        <option value="eastward-wind-pacifico|sea-surface-temperature-total">Viento → temperatura del mar</option>
+                        <option value="sea-surface-temperature-total|precipitation-norte">Temperatura del mar → lluvia norte</option>
+                        <option value="precipitation-norte|chlorophyll-a-norte">Lluvia norte → clorofila norte</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="lag-select">Rezago</label>
+                    <select id="lag-select" name="rezago">
+                        <option value="0">Mismo mes</option>
+                        <option value="1">1 mes después</option>
+                        <option value="2">2 meses después</option>
+                        <option value="3">3 meses después</option>
+                        <option value="4">4 meses después</option>
+                    </select>
+                </div>
+                <button class="action-button" id="relation-submit" type="submit">
+                    <span class="action-button__label">Calcular relación</span>
+                </button>
+            </form>
+
+            <div class="relation-result" id="relation-result" aria-live="polite">
+                <p class="relation-result__value" id="correlation-value">ρ = —</p>
+                <p id="correlation-reading">Selecciona una relación y un rezago.</p>
+                <p class="relation-result__meta" id="correlation-meta">Spearman · anomalías mensuales</p>
             </div>
         </section>
 
@@ -76,6 +171,17 @@
             histórica; no estima daños ni reemplaza los comunicados de ENFEN.
         </p>
     </footer>
+
+    <dialog class="variable-dialog" id="variable-dialog" aria-labelledby="dialog-title">
+        <div class="variable-dialog__content">
+            <p class="variable-dialog__label">Ficha de variable</p>
+            <h2 id="dialog-title">Variable</h2>
+            <p id="dialog-definition"></p>
+            <dl id="dialog-details"></dl>
+            <p class="variable-dialog__expectation" id="dialog-expectation"></p>
+            <button class="dialog-close" id="dialog-close" type="button">Cerrar</button>
+        </div>
+    </dialog>
 
     <noscript>Esta aplicación necesita JavaScript para dibujar las series interactivas.</noscript>
 </body>

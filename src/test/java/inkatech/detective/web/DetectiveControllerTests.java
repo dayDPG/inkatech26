@@ -70,4 +70,27 @@ class DetectiveControllerTests {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Variable no encontrada: desconocida"));
     }
+
+    @Test
+    void calculaCorrelacionSpearmanConRezago() throws Exception {
+        mockMvc.perform(get("/api/correlacion")
+                        .param("a", VARIABLE_VIENTO)
+                        .param("b", VARIABLE_TEMPERATURA)
+                        .param("rezago", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.coeficiente").isNumber())
+                .andExpect(jsonPath("$.valorP").isNumber())
+                .andExpect(jsonPath("$.rezagoMeses").value(2))
+                .andExpect(jsonPath("$.numeroPares", greaterThan(3)));
+    }
+
+    @Test
+    void rechazaCorrelacionConRezagoFueraDelRango() throws Exception {
+        mockMvc.perform(get("/api/correlacion")
+                        .param("a", VARIABLE_VIENTO)
+                        .param("b", VARIABLE_TEMPERATURA)
+                        .param("rezago", "5"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("El rezago debe estar entre 0 y 4 meses"));
+    }
 }

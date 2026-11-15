@@ -7,9 +7,23 @@
     --color-ink-soft: oklch(40% 0.025 244);
     --color-rule: oklch(78% 0.025 92);
     --color-accent: oklch(42% 0.13 197);
+    --color-accent-ink: oklch(99% 0.007 92);
     --color-accent-soft: oklch(90% 0.04 197);
     --color-focus: oklch(45% 0.16 197);
     --color-error: oklch(48% 0.16 28);
+    --color-error-soft: oklch(92% 0.035 28);
+    --color-success: oklch(42% 0.105 153);
+    --color-success-soft: oklch(91% 0.035 153);
+    --color-warning: oklch(48% 0.105 77);
+    --color-warning-soft: oklch(92% 0.04 77);
+    --color-backdrop: oklch(23% 0.025 244 / 72%);
+
+    /* Plotly 4 does not parse oklch values; keep this compatibility bridge aligned with the palette. */
+    --plot-paper: #fffdf7;
+    --plot-ink: #1b2732;
+    --plot-rule: #c9c1aa;
+    --plot-accent: #007079;
+    --plot-warning: #936000;
 
     --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
     --font-body: Aptos, "IBM Plex Sans", sans-serif;

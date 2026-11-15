@@ -29,6 +29,11 @@ class StaticInterfaceTests {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Detective del Clima")))
                 .andExpect(content().string(containsString("/vendor/plotly-basic-4.1.1.min.js")))
+                .andExpect(content().string(containsString("id=\"variable-select\"")))
+                .andExpect(content().string(containsString("id=\"series-chart\"")))
+                .andExpect(content().string(containsString("id=\"trend-panel\"")))
+                .andExpect(content().string(containsString("id=\"variable-cards\"")))
+                .andExpect(content().string(containsString("id=\"relation-form\"")))
                 .andExpect(content().string(not(containsString("https://cdn.plot.ly"))));
     }
 
@@ -39,7 +44,12 @@ class StaticInterfaceTests {
                 .andExpect(content().contentTypeCompatibleWith("text/javascript"));
         mockMvc.perform(get("/js/app.js"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("window.Plotly")));
+                .andExpect(content().string(containsString("window.Plotly")))
+                .andExpect(content().string(containsString("/api/variables")))
+                .andExpect(content().string(containsString("/api/serie")))
+                .andExpect(content().string(containsString("/api/tendencia")))
+                .andExpect(content().string(containsString("/api/correlacion")))
+                .andExpect(content().string(containsString("Plotly.newPlot")));
         mockMvc.perform(get("/css/app.css"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("macrostructure: Workbench")));

@@ -4,9 +4,11 @@ import inkatech.detective.config.CatalogoVariables;
 import inkatech.detective.config.VariableConfig;
 import inkatech.detective.data.AgregadorMensual;
 import inkatech.detective.data.RepositorioSeries;
+import inkatech.detective.domain.ResultadoCorrelacion;
 import inkatech.detective.domain.SerieTemporal;
 import inkatech.detective.domain.Tendencia;
 import inkatech.detective.estadistica.AnalizadorTendencia;
+import inkatech.detective.estadistica.Correlacion;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,13 +24,15 @@ public final class DetectiveController {
     private final RepositorioSeries repositorio;
     private final AgregadorMensual agregador;
     private final AnalizadorTendencia analizador;
+    private final Correlacion correlacion;
 
     public DetectiveController(CatalogoVariables catalogo, RepositorioSeries repositorio,
-            AgregadorMensual agregador, AnalizadorTendencia analizador) {
+            AgregadorMensual agregador, AnalizadorTendencia analizador, Correlacion correlacion) {
         this.catalogo = catalogo;
         this.repositorio = repositorio;
         this.agregador = agregador;
         this.analizador = analizador;
+        this.correlacion = correlacion;
     }
 
     @GetMapping("/variables")
@@ -52,8 +56,23 @@ public final class DetectiveController {
         return analizador.calcular(selected);
     }
 
+    @GetMapping("/correlacion")
+    public ResultadoCorrelacion correlacion(
+            @RequestParam String a,
+            @RequestParam String b,
+            @RequestParam int rezago) {
+        VariableConfig primera = buscar(a);
+        VariableConfig segunda = buscar(b);
+        return correlacion.calcular(prepararMensual(primera), prepararMensual(segunda), rezago);
+    }
+
     private VariableConfig buscar(String id) {
         return catalogo.buscar(id).orElseThrow(() -> new VariableNoEncontradaException(id));
+    }
+
+    private SerieTemporal prepararMensual(VariableConfig variable) {
+        SerieTemporal serie = repositorio.obtener(variable);
+        return variable.esDiaria() ? agregador.sumar(serie) : serie;
     }
 
     private static SerieTemporal filtrar(SerieTemporal serie, VariableConfig variable,
