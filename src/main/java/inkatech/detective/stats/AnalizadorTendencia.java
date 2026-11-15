@@ -6,9 +6,7 @@ import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.stereotype.Component;
 
-@Component
 public final class AnalizadorTendencia {
 
     public static final int MINIMO_MESES = 24;

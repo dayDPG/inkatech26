@@ -3,6 +3,10 @@ package inkatech.detective.stats;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import inkatech.detective.data.PuntoTemporal;
+import inkatech.detective.data.SerieTemporal;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class MannKendallTest {
@@ -63,5 +67,22 @@ class MannKendallTest {
     void rechazaValoresFaltantes() {
         assertThrows(IllegalArgumentException.class,
                 () -> MannKendall.test(new double[] { 1, 2, Double.NaN, 4, 5 }));
+    }
+
+    @Test
+    void omitePuntosFaltantesYParcialesAlAnalizarUnaSerie() {
+        SerieTemporal serie = new SerieTemporal("prueba", "u", List.of(
+                new PuntoTemporal(LocalDate.of(2020, 1, 1), 1.0),
+                new PuntoTemporal(LocalDate.of(2020, 2, 1), 2.0),
+                new PuntoTemporal(LocalDate.of(2020, 3, 1), 100.0, true),
+                new PuntoTemporal(LocalDate.of(2020, 4, 1), Double.NaN),
+                new PuntoTemporal(LocalDate.of(2020, 5, 1), 3.0),
+                new PuntoTemporal(LocalDate.of(2020, 6, 1), 4.0),
+                new PuntoTemporal(LocalDate.of(2020, 7, 1), 5.0)));
+
+        MannKendall.Resultado resultado = MannKendall.calcular(serie);
+
+        assertEquals(5, resultado.n());
+        assertEquals(10, resultado.s());
     }
 }

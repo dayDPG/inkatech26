@@ -23,7 +23,7 @@ public final class MannKendall {
         Objects.requireNonNull(serie.puntos(), "Los puntos de la serie temporal son obligatorios");
 
         double[] valores = serie.puntos().stream()
-                .filter(punto -> punto != null && Double.isFinite(punto.valor()))
+                .filter(punto -> !punto.parcial() && Double.isFinite(punto.valor()))
                 .mapToDouble(punto -> punto.valor())
                 .toArray();
 

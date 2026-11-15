@@ -1,69 +1,181 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detective INKATECH</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Explora señales de El Niño en el océano y la costa peruana.">
+    <title>Detective del Clima</title>
+    <link rel="stylesheet" href="/tokens.css">
+    <link rel="stylesheet" href="/style.css">
+    <script defer src="/js/plotly.min.js"></script>
+    <script defer src="/javascript.js"></script>
 </head>
-
 <body>
-    <header class="cabecera">
-        <h1>Detective INKATECH</h1>
-        <p>Sigue las pistas de El Niño frente a Perú: viento, mar, lluvia y clorofila.</p>
+    <header class="site-header" aria-label="Cabecera principal">
+        <div class="project-identity">
+            <span class="wordmark">DETECTIVE INKATECH</span>
+            <span class="edition">Perú · Analizador del fenómeno El Niño</span>
+        </div>
+        <details class="project-menu">
+            <summary>Demos históricas</summary>
+            <div class="project-menu__items" aria-label="Presets de análisis">
+                <button type="button" data-preset="elnino-2017">El Niño costero 2017</button>
+                <button type="button" data-preset="elnino-2023-24">El Niño 2023–24</button>
+            </div>
+        </details>
     </header>
 
-    <main class="contenido">
-        <aside class="panel" aria-label="Controles">
-            <h2>1. Elige qué investigar</h2>
-
-            <label for="selVariable">Variable</label>
-            <select id="selVariable" disabled>
-                <option>Cargando...</option>
-            </select>
-
-            <label for="selRegion">Región</label>
-            <select id="selRegion" disabled>
-                <option>Cargando...</option>
-            </select>
-
-            <label for="selDesde">Desde (AAAA-MM)</label>
-            <input type="month" id="selDesde" placeholder="AAAA-MM" pattern="\d{4}-\d{2}" disabled>
-
-            <label for="selHasta">Hasta (AAAA-MM)</label>
-            <input type="month" id="selHasta" placeholder="AAAA-MM" pattern="\d{4}-\d{2}" disabled>
-
-            <div id="infoVariable" class="ayuda" aria-live="polite"></div>
-
-            <button id="btnAnalizar" type="button" disabled>Analizar</button>
-        </aside>
-
-        <section class="resultados">
-            <div id="aviso" class="aviso" role="status" hidden></div>
-
-            <h2 id="tituloGrafico">Serie de tiempo</h2>
-            <div id="grafico" class="grafico"></div>
-
-            <div class="resumen">
-                <h3>Resultado</h3>
-                <p id="textoResumen">
-                    Aquí aparecerá la pendiente por década, si es significativa y qué tan seguros estamos (ticket T43).
+    <main id="contenido">
+        <section class="workbench" aria-labelledby="workbench-title">
+            <header class="workbench__header">
+                <div>
+                    <p class="workbench__label">Perú · Océano y costa</p>
+                    <h1 id="workbench-title">Analizador del fenómeno El Niño</h1>
+                    <p class="workbench__summary">
+                        Elige una variable, región y periodo una sola vez. El analizador compara la serie,
+                        su tendencia y sus relaciones en ese mismo periodo. No es un pronóstico.
+                    </p>
+                </div>
+                <p class="engine-status" id="plotly-status" role="status" aria-live="polite">
+                    Verificando motor gráfico…
                 </p>
+            </header>
+
+            <section class="control-panel" aria-label="Selección compartida del análisis">
+                <form id="series-form" novalidate>
+                    <div class="field">
+                        <label for="variable-select">Variable</label>
+                        <select id="variable-select" name="variable" required aria-describedby="variable-help">
+                            <option value="">Cargando variables…</option>
+                        </select>
+                        <small id="variable-help">Elige la señal que quieres explorar.</small>
+                    </div>
+                    <div class="field">
+                        <label for="region-select">Región y producto</label>
+                        <select id="region-select" name="region" required aria-describedby="region-help" disabled>
+                            <option value="">Selecciona primero una variable</option>
+                        </select>
+                        <small id="region-help">La región indica dónde se midieron o estimaron los datos.</small>
+                    </div>
+                    <div class="period-fields">
+                        <div class="field">
+                            <label for="date-from">Desde</label>
+                            <input id="date-from" name="desde" type="date" required>
+                        </div>
+                        <div class="field">
+                            <label for="date-to">Hasta</label>
+                            <input id="date-to" name="hasta" type="date" required>
+                        </div>
+                    </div>
+                    <button class="action-button" id="series-submit" type="submit">
+                        <span class="action-button__label">Analizar</span>
+                    </button>
+                    <p class="form-message" id="series-message" aria-live="polite"></p>
+                </form>
+
+                <section class="selection-note" aria-live="polite" aria-labelledby="selected-variable-title">
+                    <p class="selection-note__label">¿Por qué importa esta señal?</p>
+                    <h2 id="selected-variable-title">Elige una variable</h2>
+                    <p id="selected-variable-explanation">Aquí aparecerá qué mide y dónde se observa.</p>
+                    <p class="selection-note__reading" id="selected-variable-reading">
+                        Selecciona una variable para conocer qué cambios pueden ser relevantes durante El Niño.
+                    </p>
+                </section>
+            </section>
+
+            <section class="analysis-stage" aria-label="Resultados del periodo seleccionado">
+                <section class="result-section" aria-labelledby="series-title">
+                    <header class="section-heading">
+                        <h2 id="series-title">Serie observada</h2>
+                        <p id="chart-explanation">
+                            Valores mensuales observados en el periodo elegido. La lluvia diaria se acumula en mm/mes.
+                        </p>
+                    </header>
+                    <div class="chart-stage" id="series-chart" aria-label="Serie temporal original">
+                        <div class="chart-empty"><p>Selecciona un periodo y pulsa Analizar.</p></div>
+                    </div>
+                </section>
+
+                <section class="stats-grid" aria-label="Tendencia y último dato">
+                    <article class="trend-panel" aria-labelledby="trend-title" aria-live="polite">
+                        <p class="trend-panel__label">Tendencia de anomalías</p>
+                        <h2 id="trend-title">Tendencia pendiente</h2>
+                        <span class="significance-light" id="significance-light">Sin calcular</span>
+                        <dl class="trend-metrics">
+                            <div>
+                                <dt>Cambio estimado por década</dt>
+                                <dd id="trend-slope">—</dd>
+                            </div>
+                            <div>
+                                <dt>Valor p</dt>
+                                <dd id="trend-pvalue">—</dd>
+                                <small>No es la probabilidad de que ocurra El Niño.</small>
+                            </div>
+                            <div>
+                                <dt>Intervalo de confianza del 95 %</dt>
+                                <dd id="trend-interval">—</dd>
+                            </div>
+                        </dl>
+                        <p class="trend-panel__explanation" id="trend-explanation">
+                            La tendencia se calculará sobre las anomalías mensuales.
+                        </p>
+                    </article>
+                    <article class="event-panel" aria-labelledby="event-title" aria-live="polite">
+                        <p class="trend-panel__label">Último mes disponible</p>
+                        <h2 id="event-title">Comparación histórica</h2>
+                        <dl class="trend-metrics">
+                            <div><dt>Fecha y valor</dt><dd id="event-value">—</dd></div>
+                            <div><dt>Z-score vs. mismo mes</dt><dd id="event-zscore">—</dd></div>
+                            <div><dt>Percentil vs. mismo mes</dt><dd id="event-percentile">—</dd></div>
+                        </dl>
+                        <p id="event-message">El dato se compara con los mismos meses de años anteriores.</p>
+                    </article>
+                </section>
+
+                <section class="result-section" aria-labelledby="anomaly-title">
+                    <header class="section-heading">
+                        <h2 id="anomaly-title">Anomalías mensuales</h2>
+                        <p>Desviación respecto al promedio del mismo mes en el periodo elegido.</p>
+                    </header>
+                    <div class="chart-stage chart-stage--compact" id="anomaly-chart" aria-label="Gráfico de anomalías">
+                        <div class="chart-empty"><p>Se calculará junto con la serie.</p></div>
+                    </div>
+                </section>
+            </section>
+        </section>
+
+        <section class="relations" aria-labelledby="relations-title">
+            <header class="section-heading">
+                <h2 id="relations-title">Relaciones y rezagos</h2>
+                <p>
+                    Spearman resume la asociación entre anomalías mensuales del mismo periodo.
+                    Una asociación no demuestra causalidad ni predice impactos.
+                </p>
+            </header>
+            <div id="relations-list" class="relations-list" aria-live="polite">
+                <p>Las relaciones se calcularán al analizar una selección.</p>
             </div>
+        </section>
+
+        <section class="signal-guide" aria-labelledby="signal-guide-title">
+            <header class="section-heading">
+                <h2 id="signal-guide-title">Cómo interpretar las señales</h2>
+                <p>
+                    Un calentamiento sostenido del mar, cambios en vientos, mayor lluvia en el norte o menor clorofila
+                    pueden ser compatibles con El Niño costero. Son pistas para explorar, no una alerta ni un pronóstico.
+                    Contrasta los resultados con ENFEN y otros indicadores climáticos.
+                </p>
+            </header>
         </section>
     </main>
 
-    <footer class="pie">
+    <footer class="site-footer">
         <p>
-            Qué no podemos concluir: esto no es un pronóstico ni una estimación de daños.
-            La lluvia usa datos preliminares y la clorofila termina en noviembre de 2025.
+            Datos: NASA Giovanni — MODIS-Aqua, GPM IMERG y MERRA-2. Esta herramienta explora evidencia histórica;
+            no calcula probabilidades futuras ni reemplaza los comunicados de ENFEN.
         </p>
     </footer>
 
-    <!-- Plotly va dentro del proyecto (no por CDN) para que la demo funcione sin internet. -->
-    <script src="js/plotly.min.js"></script>
-    <script src="javascript.js"></script>
+    <noscript>Esta aplicación necesita JavaScript para dibujar las series interactivas.</noscript>
 </body>
-
 </html>

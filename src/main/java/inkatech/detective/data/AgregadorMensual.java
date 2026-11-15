@@ -8,10 +8,29 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AgregadorMensual {
+
+    public static SerieTemporal promediarPorMes(SerieTemporal serie) {
+        Objects.requireNonNull(serie, "La serie temporal es obligatoria");
+
+        Map<YearMonth, Promedio> promedios = new TreeMap<>();
+        for (PuntoTemporal punto : serie.puntos()) {
+            promedios.computeIfAbsent(YearMonth.from(punto.fecha()), ignorado -> new Promedio())
+                    .agregar(punto);
+        }
+
+        List<PuntoTemporal> puntosMensuales = promedios.entrySet().stream()
+                .map(entry -> new PuntoTemporal(
+                        entry.getKey().atDay(1),
+                        entry.getValue().calcular(),
+                        entry.getValue().esParcial()))
+                .toList();
+        return new SerieTemporal(serie.variableId(), serie.unidad(), puntosMensuales);
+    }
 
     public SerieTemporal normalizarPrecipitacionMensual(SerieTemporal serie) {
         Objects.requireNonNull(serie, "La serie de precipitacion es obligatoria");
@@ -99,5 +118,28 @@ public class AgregadorMensual {
         String sinAcentos = Normalizer.normalize(unidad, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "");
         return sinAcentos.trim().toLowerCase(Locale.ROOT).replace(" ", "");
+    }
+
+    private static final class Promedio {
+        private double suma;
+        private int cantidad;
+        private boolean parcial;
+
+        void agregar(PuntoTemporal punto) {
+            if (punto.parcial()) {
+                parcial = true;
+            } else if (!punto.esFaltante()) {
+                suma += punto.valor();
+                cantidad++;
+            }
+        }
+
+        double calcular() {
+            return cantidad == 0 ? Double.NaN : suma / cantidad;
+        }
+
+        boolean esParcial() {
+            return cantidad == 0 && parcial;
+        }
     }
 }

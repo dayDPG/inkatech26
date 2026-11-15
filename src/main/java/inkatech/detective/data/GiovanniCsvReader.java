@@ -3,6 +3,8 @@ package inkatech.detective.data;
 import inkatech.detective.config.VariableConfig;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -44,7 +46,19 @@ public final class GiovanniCsvReader {
             throw new IllegalArgumentException("No se encontró el CSV: " + rutaResolvida);
         }
 
-        List<PuntoTemporal> puntos = parsearPuntos(rutaResolvida);
+        return crearSerie(variable, parsearPuntos(rutaResolvida));
+    }
+
+    public static SerieTemporal leer(InputStream entrada, VariableConfig variable) throws IOException {
+        Objects.requireNonNull(entrada, "El flujo del CSV es obligatorio");
+        Objects.requireNonNull(variable, "La configuración de variable es obligatoria");
+        try (BufferedReader lector = new BufferedReader(
+                new InputStreamReader(entrada, StandardCharsets.UTF_8))) {
+            return crearSerie(variable, parsearPuntos(lector));
+        }
+    }
+
+    private static SerieTemporal crearSerie(VariableConfig variable, List<PuntoTemporal> puntos) {
         puntos.sort(Comparator.comparing(PuntoTemporal::fecha));
         return new SerieTemporal(variable.id(), variable.unidad(), puntos);
     }
@@ -90,36 +104,40 @@ public final class GiovanniCsvReader {
 
     private static List<PuntoTemporal> parsearPuntos(Path rutaArchivo) throws IOException {
         try (BufferedReader lector = Files.newBufferedReader(rutaArchivo, StandardCharsets.UTF_8)) {
-            String linea;
-            StringBuilder contenidoCsv = null;
-            boolean cabeceraEncontrada = false;
-
-            while ((linea = lector.readLine()) != null) {
-                String lineaLimpia = linea.trim();
-                if (lineaLimpia.isEmpty()) {
-                    continue;
-                }
-                String normalizada = lineaLimpia.toLowerCase(Locale.ROOT);
-                if (!cabeceraEncontrada && (normalizada.startsWith("time") || normalizada.startsWith("\"time\""))) {
-                    cabeceraEncontrada = true;
-                    contenidoCsv = new StringBuilder();
-                    contenidoCsv.append(lineaLimpia).append('\n');
-                    while ((linea = lector.readLine()) != null) {
-                        String siguiente = linea.trim();
-                        if (!siguiente.isEmpty()) {
-                            contenidoCsv.append(siguiente).append('\n');
-                        }
-                    }
-                    break;
-                }
-            }
-
-            if (!cabeceraEncontrada || contenidoCsv == null || contenidoCsv.length() == 0) {
-                throw new IllegalArgumentException("El CSV de Giovanni no contiene la cabecera 'time' válida");
-            }
-
-            return parsearContenidoCsv(contenidoCsv.toString());
+            return parsearPuntos(lector);
         }
+    }
+
+    private static List<PuntoTemporal> parsearPuntos(BufferedReader lector) throws IOException {
+        String linea;
+        StringBuilder contenidoCsv = null;
+        boolean cabeceraEncontrada = false;
+
+        while ((linea = lector.readLine()) != null) {
+            String lineaLimpia = linea.trim();
+            if (lineaLimpia.isEmpty()) {
+                continue;
+            }
+            String normalizada = lineaLimpia.toLowerCase(Locale.ROOT);
+            if (!cabeceraEncontrada && (normalizada.startsWith("time") || normalizada.startsWith("\"time\""))) {
+                cabeceraEncontrada = true;
+                contenidoCsv = new StringBuilder();
+                contenidoCsv.append(lineaLimpia).append('\n');
+                while ((linea = lector.readLine()) != null) {
+                    String siguiente = linea.trim();
+                    if (!siguiente.isEmpty()) {
+                        contenidoCsv.append(siguiente).append('\n');
+                    }
+                }
+                break;
+            }
+        }
+
+        if (!cabeceraEncontrada || contenidoCsv == null || contenidoCsv.length() == 0) {
+            throw new IllegalArgumentException("El CSV de Giovanni no contiene la cabecera 'time' válida");
+        }
+
+        return parsearContenidoCsv(contenidoCsv.toString());
     }
 
     private static List<PuntoTemporal> parsearContenidoCsv(String contenidoCsv) throws IOException {
