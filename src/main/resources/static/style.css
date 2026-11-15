@@ -6,6 +6,14 @@
     box-sizing: border-box;
 }
 
+.chart-source {
+    margin: var(--space-xs) 0 0;
+    color: var(--color-ink-soft);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
 html,
 body {
     margin: 0;
@@ -228,9 +236,9 @@ noscript {
 /* Interactive analysis workspace — T24 to T28 */
 .control-panel {
     min-width: 0;
-    padding: var(--space-lg);
-    border: var(--rule-thin) solid var(--color-rule);
-    background: var(--color-paper-muted);
+    padding-block: var(--space-lg);
+    border-block: var(--rule-thin) solid var(--color-rule);
+    background: transparent;
 }
 
 #series-form {
@@ -349,10 +357,10 @@ noscript {
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
     gap: var(--space-xs) var(--space-lg);
-    margin-block-start: var(--space-lg);
-    padding: var(--space-md) var(--space-lg);
-    border-inline-start: var(--rule-strong) solid var(--color-accent);
-    background: var(--color-paper-raised);
+    margin-block-start: var(--space-xl);
+    padding-block: var(--space-lg);
+    border-block-start: var(--rule-thin) solid var(--color-rule);
+    background: transparent;
 }
 
 .selection-note__label {
@@ -385,7 +393,7 @@ noscript {
     min-width: 0;
     min-height: clamp(24rem, 58dvh, 42rem);
     padding: 0;
-    background: var(--color-paper-raised);
+    background: var(--plot-paper);
 }
 
 .chart-stage--compact {
@@ -395,14 +403,14 @@ noscript {
 .chart-empty {
     align-self: center;
     margin: var(--space-xl);
-    padding: var(--space-xl);
-    border-block-start: var(--rule-strong) solid var(--color-accent);
-    background: var(--color-paper-raised);
+    padding-block: var(--space-xl);
+    border-block-start: var(--rule-thin) solid var(--color-rule);
+    background: transparent;
 }
 
 .chart-empty p {
     margin-block-end: var(--space-xs);
-    font-family: var(--font-display);
+    font-family: var(--font-body);
     font-size: var(--text-xl);
 }
 
@@ -413,9 +421,9 @@ noscript {
 .trend-panel,
 .event-panel {
     min-width: 0;
-    padding: var(--space-lg);
-    border-block-start: var(--rule-strong) solid var(--color-ink);
-    background: var(--color-paper-muted);
+    padding-block: var(--space-lg);
+    border-block-start: var(--rule-thin) solid var(--color-rule);
+    background: transparent;
 }
 
 .trend-panel__label {
@@ -438,23 +446,7 @@ noscript {
 
 .significance-light {
     justify-self: start;
-    padding: var(--space-xs) var(--space-sm);
-    border: var(--rule-thin) solid var(--color-rule);
-    background: var(--color-paper-raised);
-    font-size: var(--text-xs);
-    font-weight: 700;
-}
-
-.significance-light[data-state="significant"] {
-    border-color: var(--color-success);
-    background: var(--color-success-soft);
-    color: var(--color-success);
-}
-
-.significance-light[data-state="not-significant"] {
-    border-color: var(--color-warning);
-    background: var(--color-warning-soft);
-    color: var(--color-warning);
+    display: none;
 }
 
 .significance-light[data-state="unavailable"] {
@@ -463,15 +455,19 @@ noscript {
 
 .trend-metrics {
     display: grid;
-    gap: var(--space-md);
-    margin-block: var(--space-xl);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    margin-block: var(--space-lg);
+    border-block: var(--rule-thin) solid var(--color-rule);
 }
 
 .trend-metrics div {
     min-width: 0;
-    padding: var(--space-md);
-    border: var(--rule-thin) solid var(--color-rule);
-    background: var(--color-paper-muted);
+    padding: var(--space-sm) var(--space-md);
+}
+
+.trend-metrics div + div {
+    border-inline-start: var(--rule-thin) solid var(--color-rule);
 }
 
 .trend-metrics dt {
@@ -488,14 +484,18 @@ noscript {
 
 .trend-metrics dd {
     margin: var(--space-2xs) 0 0;
-    font-family: var(--font-display);
+    font-family: var(--font-body);
     font-size: var(--text-lg);
     font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
 }
 
 .trend-panel__explanation {
     max-width: 65ch;
-    margin: 0;
+    margin: var(--space-md) 0 0;
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    line-height: 1.2;
 }
 
 .event-panel > p:last-child {
@@ -508,7 +508,7 @@ noscript {
     display: grid;
     grid-auto-rows: 1fr;
     align-content: stretch;
-    gap: var(--space-md);
+    gap: 0;
 }
 
 .stats-grid > article {
@@ -529,10 +529,9 @@ noscript {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--space-md) var(--space-lg);
-    padding: var(--space-lg);
-    border: var(--rule-thin) solid var(--color-rule);
-    border-block-start: var(--rule-strong) solid var(--color-accent);
-    background: var(--color-paper-muted);
+    padding-block: var(--space-lg);
+    border-block: var(--rule-thin) solid var(--color-rule);
+    background: transparent;
 }
 
 .demo-guide[hidden] {
@@ -606,9 +605,9 @@ noscript {
 
 .signal-guide {
     margin-block: var(--space-lg);
-    padding: var(--space-xl);
-    border: var(--rule-thin) solid var(--color-rule);
-    background: var(--color-paper-muted);
+    padding-block: var(--space-xl);
+    border-block-start: var(--rule-thin) solid var(--color-rule);
+    background: transparent;
 }
 
 .relations-list {
@@ -623,7 +622,7 @@ noscript {
 
 .relation-card h3 {
     margin: 0;
-    font-family: var(--font-display);
+    font-family: var(--font-body);
     font-size: var(--text-lg);
     font-weight: 500;
 }
@@ -769,7 +768,16 @@ noscript {
 
     .control-panel,
     .signal-guide {
-        padding: var(--space-md);
+        padding-block: var(--space-md);
+    }
+
+    .trend-metrics div {
+        padding-inline: var(--space-xs);
+    }
+
+    .trend-metrics dt {
+        font-size: var(--text-xs);
+        line-height: 1.25;
     }
 
     .workbench__header {

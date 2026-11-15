@@ -288,15 +288,20 @@
             type: "scatter",
             mode: "lines",
             name: title,
-            line: { color: cssToken("--plot-accent"), width: 2 },
-            hovertemplate: `%{x|%Y-%m-%d}<br>%{y:.4g} ${serie.unidad}<extra></extra>`
+            line: { color: cssToken("--plot-accent"), width: 1.5 },
+            hovertemplate: `%{x|%d/%m/%Y}<br>%{y:.4g} ${serie.unidad}<extra></extra>`
         }], {
             autosize: true,
             paper_bgcolor: cssToken("--plot-paper"),
             plot_bgcolor: cssToken("--plot-paper"),
             font: { family: cssToken("--font-body"), color: cssToken("--plot-ink") },
             margin: { l: 64, r: 24, t: 32, b: 56 },
-            xaxis: { title: "Fecha", gridcolor: cssToken("--plot-rule"), zeroline: false },
+            xaxis: {
+                title: "Mes",
+                tickformat: "%m/%Y",
+                gridcolor: cssToken("--plot-rule"),
+                zeroline: false
+            },
             yaxis: {
                 title: serie.unidad,
                 gridcolor: cssToken("--plot-rule"),
@@ -324,11 +329,18 @@
             document.querySelector("#significance-light").textContent = "Sin resultado";
             document.querySelector("#significance-light").dataset.state = "unavailable";
             document.querySelector("#trend-explanation").textContent =
-                `Datos insuficientes para estimar la tendencia. ${analisis.mensajeTendencia || ""}`.trim();
+                "No hay datos suficientes para estimar la tendencia.";
             return;
         }
 
         const significant = trend.valorP < 0.05;
+        const group = selectedVariable().grupo;
+        const subject = {
+            "sea-surface-temperature": "El mar",
+            "precipitation": "La lluvia",
+            "eastward-wind": "El viento",
+            "chlorophyll-a": "La clorofila"
+        }[group] || "La señal";
         document.querySelector("#trend-title").textContent = selectedVariable().nombre;
         document.querySelector("#trend-slope").textContent =
             `${formatNumber(trend.pendientePorDecada)} ${analisis.anomalias.unidad}/década`;
@@ -339,9 +351,11 @@
         light.dataset.state = significant ? "significant" : "not-significant";
         light.textContent = significant ? "Evidencia de tendencia" : "Sin evidencia suficiente";
         const direction = trend.pendientePorDecada >= 0 ? "aumenta" : "disminuye";
-        document.querySelector("#trend-explanation").textContent = significant
-            ? `La serie de anomalías ${direction}; Mann-Kendall encuentra evidencia de tendencia (p < 0,05). No es un pronóstico.`
-            : `${analisis.mensajeTendencia || `La pendiente sugiere que las anomalías ${direction}, pero p ≥ 0,05: no hay evidencia suficiente para afirmar una tendencia.`} Esto no demuestra que no exista cambio.`;
+        const evidencia = significant
+            ? "hay evidencia de tendencia"
+            : "no hay evidencia suficiente de tendencia";
+        document.querySelector("#trend-explanation").textContent =
+            `${subject}: la anomalía ${direction} ${formatNumber(trend.pendientePorDecada)} ${analisis.anomalias.unidad}/década; ${evidencia}.`;
     }
 
     function renderEvent(analisis) {

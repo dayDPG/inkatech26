@@ -111,6 +111,9 @@
                     <article class="trend-panel" aria-labelledby="trend-title" aria-live="polite">
                         <p class="trend-panel__label">Tendencia de anomalías</p>
                         <h2 id="trend-title">Tendencia pendiente</h2>
+                        <p class="trend-panel__explanation" id="trend-explanation">
+                            La tendencia se calculará sobre las anomalías mensuales.
+                        </p>
                         <span class="significance-light" id="significance-light">Sin calcular</span>
                         <dl class="trend-metrics">
                             <div>
@@ -120,16 +123,12 @@
                             <div>
                                 <dt>Valor p</dt>
                                 <dd id="trend-pvalue">—</dd>
-                                <small>No es la probabilidad de que ocurra El Niño.</small>
                             </div>
                             <div>
                                 <dt>Intervalo de confianza del 95 %</dt>
                                 <dd id="trend-interval">—</dd>
                             </div>
                         </dl>
-                        <p class="trend-panel__explanation" id="trend-explanation">
-                            La tendencia se calculará sobre las anomalías mensuales.
-                        </p>
                     </article>
                     <article class="event-panel" aria-labelledby="event-title" aria-live="polite">
                         <p class="trend-panel__label">Último mes disponible</p>
