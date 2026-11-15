@@ -89,6 +89,9 @@ test("cada demo actualiza el periodo, muestra la guía y sombrea el evento", asy
         await expect(page.locator("#demo-guide-title")).toHaveText(preset.titulo);
         await expect(page.locator("#demo-guide-description")).not.toBeEmpty();
         await expect(page.locator("#demo-guide-questions li")).toHaveCount(3);
+        const guideTop = await page.locator("#demo-guide").evaluate(element => element.getBoundingClientRect().top);
+        const resultsTop = await page.locator("#series-title").evaluate(element => element.getBoundingClientRect().top);
+        expect(guideTop).toBeLessThan(resultsTop);
         await expect(page.locator("#series-chart.js-plotly-plot")).toBeVisible();
         await expect(page.locator("#anomaly-chart.js-plotly-plot")).toBeVisible();
         await expect(page.locator("#series-message")).toContainText("observaciones en el periodo", { timeout: 30000 });

@@ -528,10 +528,10 @@ noscript {
 
 .demo-guide {
     display: grid;
-    grid-column: 1 / -1;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--space-md) var(--space-lg);
+    margin-block: var(--space-xl);
     padding-block: var(--space-lg);
     border-block: var(--rule-thin) solid var(--color-rule);
     background: transparent;
