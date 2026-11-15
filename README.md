@@ -1,15 +1,16 @@
 # Detective del Clima
 
-> Nos apoyamos dela IA para generar los Test y lo de Theil-Sen y Mann-Kendall.
+> El equipo utilizó herramientas de IA como apoyo para desarrollar pruebas, mejorar interfaz y para calcular lo de Theil–Sen y Mann–Kendall.
 
-Explorar series ambientales del Pacífico y la costa peruana durante episodios asociados a El Niño. Combina una API Spring Boot con una interfaz web estática, gráficos Plotly.js y datos descargados de NASA Giovanni.
+Detective del Clima permite explorar series ambientales del Pacífico y la costa peruana durante episodios asociados a El Niño. Combina una API Spring Boot con una interfaz web estática, gráficos Plotly.js y datos obtenidos de NASA Giovanni.
 
 > **Alcance:** describe asociaciones y cambios históricos. No es un pronóstico, no estima daños y no reemplaza los comunicados oficiales de ENFEN.
 
 
 - [Validación externa de estadísticos ](docs/validacion-estadisticos.md)
-- [CSV de trabajo y metadatos](src/main/java/inkatech/detective/csv/CSV_DATA.md)
+- [CSV de trabajo y metadatos](docs/CSV_DATA.md)
 - [Requisitos y ejecución](#requisitos-y-ejecución)
+- [Ayuda del proyecto](/docs/HELP.md)
 
 
 ## Funciones
@@ -17,14 +18,14 @@ Explorar series ambientales del Pacífico y la costa peruana durante episodios a
 - Explorar temperatura superficial del mar, precipitación, viento zonal y clorofila-a.
 - Graficar series y estimar tendencia con pendiente Theil–Sen e inferencia Mann–Kendall.
 - Calcular correlación de Spearman con rezagos de 0 a 4 meses para viento -> mar, mar -> lluvia y mar -> clorofila.
-- Cargar dos ejemplos guiados: El Niño costero de 2017 y El Niño 2023–24.
+- Explorar tres presets guiados: El Niño costero de 2017, El Niño 2023–24 y el periodo reciente de 2026.
 - Comparar las versiones Late y Final de precipitación y consultar las analogías históricas implementadas.
 
 ## ¿Qué evalúa la aplicación?
  
-La aplicación comprueba, con datos de satélite, **si las señales asociadas a El Niño costero se ven en el mar y la costa de Perú, qué tan fuertes son y si se salen de lo normal**. No evalúa si habrá otro El Niño.
+La aplicación permite explorar **si las señales asociadas a El Niño costero aparecen en el mar y la costa de Perú, cuánto cambian y cómo se relacionan entre sí**. Usa estimaciones satelitales y un reanálisis atmosférico; no evalúa si habrá otro El Niño.
  
-Un episodio de El Niño tiene una firma conocida: los vientos alisios se debilitan, el mar se calienta, llueve más en el norte de la costa y baja la clorofila. La aplicación revisa, pista por pista, si esa firma aparece en los datos y si se distingue del azar.
+Entre las señales que se exploran están el debilitamiento de los alisios, el calentamiento del mar, el aumento de lluvia en el norte y la disminución de clorofila. La app muestra tendencias y asociaciones estadísticas para contrastar estas hipótesis; no confirma por sí sola un evento ni su causalidad.
 
 ## ¿Qué esperar de cada variable en un episodio de El Niño?
  
@@ -66,14 +67,14 @@ Son hipótesis para contrastar con los datos, no resultados garantizados.
 ## Requisitos y ejecución
 
 - Java 21
-- Maven Wrapper incluido (`mvnw.cmd`)
+- Maven instalado
 - Node.js y npm solo para las pruebas de navegador
 
 Desde la raíz del repositorio:
 
 ```powershell
-.\mvnw.cmd test
-.\mvnw.cmd spring-boot:run
+mvn test
+mvn spring-boot:run
 ```
 
 Abre <http://localhost:8080/>. La interfaz y Plotly.js se sirven localmente; no requiere cargar Plotly desde un CDN.
@@ -83,7 +84,7 @@ Abre <http://localhost:8080/>. La interfaz y Plotly.js se sirven localmente; no 
 Las pruebas Java cubren análisis estadísticos, agregación de lluvia, marcadores faltantes, endpoints y recursos estáticos:
 
 ```powershell
-.\mvnw.cmd test
+mvn test
 ```
 
 Para las pruebas E2E, instala las dependencias y el navegador una vez:
@@ -99,11 +100,16 @@ Ejecuta:
 npm run test:e2e
 ```
 
-Si no hay un servidor local disponible, Playwright inicia Spring Boot y lo detiene al terminar. Para probar contra otro servidor, defínelo con `BASE_URL`.
+Inicia Spring Boot en una terminal con `mvn spring-boot:run`. En otra terminal, ejecuta las pruebas indicando la URL del servidor:
+
+```powershell
+$env:BASE_URL = "http://localhost:8080"
+npm run test:e2e
+```
 
 ## Datos
 
-Los CSV de trabajo están en [`src/main/java/inkatech/detective/csv/`](src/main/java/inkatech/detective/csv/README.md); ahí se registran las variables y sus metadatos de descarga. La configuración vigente está en `CatalogoVariables`.
+Los CSV de trabajo y sus metadatos de descarga se describen en [`CSV_DATA.md`](src/main/java/inkatech/detective/csv/CSV_DATA.md). La configuración vigente está en `CatalogoVariables`.
 
 | Señal | Producto | Cobertura declarada |
 |---|---|---|
@@ -123,6 +129,7 @@ Las series mensuales se normalizan a un punto por mes; si hay más de una observ
 
 | Ruta | Parámetros | Resultado |
 |---|---|---|
+| `/api/analisis` | `var`, `desde`, `hasta` (`YYYY-MM-DD`) | Serie, anomalías, tendencia, comparación del último mes y relaciones con rezagos |
 | `/api/serie` | `var`, opcionalmente `desde` y `hasta` (`YYYY-MM-DD`) | Serie temporal filtrada |
 | `/api/tendencia` | `var`, opcionalmente `desde` y `hasta` | Pendiente Theil–Sen por década, intervalo de confianza y p Mann–Kendall |
 | `/api/correlacion` | `a`, `b`, `rezago=0..4` | Spearman, valor p aproximado y pares válidos |
@@ -137,12 +144,9 @@ La aplicación describe cambios y asociaciones históricas; no calcula una proba
 ## Referencias
 
 - Comisión Multisectorial ENFEN. (s. f.). *Comunicados, avisos y documentos oficiales*. Instituto del Mar del Perú. <https://enfen.imarpe.gob.pe/>. Consultado el 15 de noviembre de 2026.
-- Instituto del Mar del Perú. (s. f.). *El Niño – La Niña* (información institucional sobre ENFEN). <https://www.imarpe.gob.pe/nino/>. Consultado el 15 de noviembre de 2026.
-- NOAA Climate Prediction Center. (s. f.). *ENSO Diagnostic Discussion*. <https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso_advisory/>. Consultado el 15 de noviembre de 2026.
-- Royal Netherlands Meteorological Institute (KNMI). (s. f.). *KNMI Climate Explorer*. <https://climexp.knmi.nl/start.cgi>. Consultado el 15 de noviembre de 2026.
 - NASA Goddard Earth Sciences Data and Information Services Center. (s. f.). *Giovanni: The Bridge Between Data and Science*. <https://giovanni.gsfc.nasa.gov/giovanni/>. Consultado el 15 de noviembre de 2026.
-- McClain, C. R. (2009). A decade of satellite ocean color observations. *Annual Review of Marine Science, 1*, 19–42. <https://doi.org/10.1146/annurev.marine.010908.163650>.
-- O'Reilly, J. E., Maritorena, S., Mitchell, B. G., Siegel, D. A., Carder, K. L., Garver, S. A., Kahru, M., & McClain, C. (1998). Ocean color chlorophyll algorithms for SeaWiFS. *Journal of Geophysical Research: Oceans, 103*(C11), 24937–24953. <https://doi.org/10.1029/98JC02160>.
+- NumPy. (s. f.). *NumPy documentation*, usada para los fixtures de referencia de la validación estadística. <https://numpy.org/doc/>.
+- SciPy. (s. f.). *Statistical functions* (`theilslopes`, `spearmanr` y distribución normal), usada como referencia independiente en la validación estadística. <https://docs.scipy.org/doc/scipy/reference/stats.html>.
 
-Los artículos de SeaWiFS se incluyen como contexto metodológico sobre color oceánico y clorofila; las series actuales de este proyecto son MODIS-Aqua, no SeaWiFS.
+ENFEN se incluye como referencia para contrastar resultados; no es una fuente de datos integrada en la aplicación. Los productos de datos usados por la app se detallan en la sección [Datos](#datos).
 
