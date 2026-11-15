@@ -1,5 +1,6 @@
 # Detective del Clima
 
+> Nos apoyamos dela IA para generar los Test y lo de Theil-Sen y Mann-Kendall.
 
 Explorar series ambientales del Pacífico y la costa peruana durante episodios asociados a El Niño. Combina una API Spring Boot con una interfaz web estática, gráficos Plotly.js y datos descargados de NASA Giovanni.
 
@@ -9,6 +10,7 @@ Explorar series ambientales del Pacífico y la costa peruana durante episodios a
 - [Validación externa de estadísticos ](docs/validacion-estadisticos.md)
 - [CSV de trabajo y metadatos](src/main/java/inkatech/detective/csv/CSV_DATA.md)
 - [Requisitos y ejecución](#requisitos-y-ejecución)
+
 
 ## Funciones
 
