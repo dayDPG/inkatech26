@@ -393,6 +393,33 @@
         });
     }
 
+    function resetAnalysisResults() {
+        [elements.seriesChart, elements.anomalyChart].forEach((chart, index) => {
+            if (typeof window.Plotly !== "undefined" && chart.classList.contains("js-plotly-plot")) {
+                window.Plotly.purge(chart);
+            }
+            const empty = document.createElement("p");
+            empty.className = "chart-empty";
+            empty.textContent = index === 0 ? "Cargando serie…" : "Cargando anomalías…";
+            chart.replaceChildren(empty);
+        });
+
+        document.querySelector("#trend-title").textContent = "Calculando tendencia…";
+        document.querySelector("#trend-slope").textContent = "—";
+        document.querySelector("#trend-pvalue").textContent = "—";
+        document.querySelector("#trend-interval").textContent = "—";
+        document.querySelector("#significance-light").textContent = "Calculando…";
+        document.querySelector("#significance-light").dataset.state = "unavailable";
+        document.querySelector("#trend-explanation").textContent = "Esperando los resultados del nuevo periodo.";
+
+        document.querySelector("#event-title").textContent = "Comparación histórica";
+        document.querySelector("#event-value").textContent = "—";
+        document.querySelector("#event-zscore").textContent = "—";
+        document.querySelector("#event-percentile").textContent = "—";
+        document.querySelector("#event-message").textContent = "Calculando comparación histórica…";
+        elements.relations.replaceChildren("Calculando relaciones…");
+    }
+
     function renderLag(rezago) {
         const row = document.createElement("div");
         row.className = "lag-row";
@@ -492,6 +519,7 @@
         elements.to.value = preset.hasta;
         captureSelection();
         renderDemoGuide(preset);
+        resetAnalysisResults();
         const menu = document.querySelector(".project-menu");
         menu.open = false;
         await analizar();

@@ -111,6 +111,29 @@ test("cada demo actualiza el periodo, muestra la guía y sombrea el evento", asy
     expect(analysisCalls.get(page)).toBe(4);
 });
 
+test("al cargar una demo se limpian los resultados anteriores mientras se calcula", async ({ page }) => {
+    await page.route(url => url.pathname === "/api/analisis"
+        && url.searchParams.get("var") === "precipitation-norte", async route => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await route.continue();
+    });
+
+    await page.locator(".project-menu summary").click();
+    await page.getByRole("button", { name: "El Niño costero de 2017" }).click();
+
+    await expect(page.locator("#series-message"))
+        .toHaveText("Calculando serie, tendencia, evento y relaciones…");
+    await expect(page.locator("#series-chart")).toHaveText("Cargando serie…");
+    await expect(page.locator("#anomaly-chart")).toHaveText("Cargando anomalías…");
+    await expect(page.locator("#trend-title")).toHaveText("Calculando tendencia…");
+    await expect(page.locator("#event-zscore")).toHaveText("—");
+    await expect(page.locator("#relations-list")).toHaveText("Calculando relaciones…");
+
+    await expect(page.locator("#series-message"))
+        .toContainText("observaciones en el periodo", { timeout: 30000 });
+    await expect(page.locator("#series-chart.js-plotly-plot")).toBeVisible();
+});
+
 test("cambiar manualmente las fechas quita la guía y el sombreado", async ({ page }) => {
     await page.locator(".project-menu summary").click();
     await page.getByRole("button", { name: "El Niño costero de 2017" }).click();
