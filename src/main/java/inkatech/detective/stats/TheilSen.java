@@ -12,7 +12,7 @@ la pendiente de una serie nos sirve para estimar la tendencia de las variables c
 public final class TheilSen {
 
     public static final int MINIMO_PUNTOS = 4;
-    //LIMITE para no gastar memoria en series largas
+    // LIMITE para no gastar memoria en series largas
     public static final int MAXIMO_PUNTOS = 2000;
     public static final double NIVEL_CONFIANZA = 0.95;
 
@@ -32,6 +32,7 @@ public final class TheilSen {
             throw new IllegalArgumentException("x e y deben tener el mismo tamano");
         }
         int numeroPuntos = valoresX.length;
+
         if (numeroPuntos < MINIMO_PUNTOS) {
             throw new IllegalArgumentException(
                     "Theil-Sen necesita al menos " + MINIMO_PUNTOS + " puntos");
@@ -83,8 +84,8 @@ public final class TheilSen {
         double estadisticoZ = NORMAL.inverseCumulativeProbability((1.0 + nivelConfianza) / 2.0);
         double ajuste = estadisticoZ * sigma;
 
-        int indiceInferior = (int) Math.max(0, Math.round((cantidad - ajuste) / 2.0));
-        int indiceSuperior = (int) Math.min(cantidad - 1, Math.round((cantidad + ajuste) / 2.0));
+        int indiceInferior = (int) Math.max(0, Math.rint((cantidad - ajuste) / 2.0) - 1);
+        int indiceSuperior = (int) Math.min(cantidad - 1, Math.rint((cantidad + ajuste) / 2.0));
         indiceInferior = Math.min(indiceInferior, cantidad - 1);
         indiceSuperior = Math.max(indiceSuperior, 0);
 
@@ -101,5 +102,6 @@ public final class TheilSen {
      * @param limiteSuperior extremo superior del intervalo de confianza
      * @param n              cantidad de puntos usados
      */
-    public record Resultado(double pendiente, double limiteInferior, double limiteSuperior, int n) {}
+    public record Resultado(double pendiente, double limiteInferior, double limiteSuperior, int n) {
+    }
 }

@@ -27,8 +27,8 @@ public record Tendencia(
         }
     }
 
-    public boolean isSignificativa() {
-        return valorP <= NIVEL_SIGNIFICANCIA;
+    public boolean esSignificativa() {
+        return valorP < NIVEL_SIGNIFICANCIA;
     }
 
     private static void requireFinite(double value, String fieldName) {

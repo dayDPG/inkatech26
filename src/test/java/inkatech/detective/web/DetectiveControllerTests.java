@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class DetectiveControllerTests {
 
     private static final String VARIABLE_TEMPERATURA = "sea-surface-temperature-total";
-    private static final String VARIABLE_VIENTO = "eastward-wind-costa";
+    private static final String VARIABLE_VIENTO = "eastward-wind-pacifico";
     private static final String LLUVIA_DIARIA_NORTE = "precipitation-norte";
     private static final String LLUVIA_MENSUAL_FINAL = "precipitation-norte-final";
 

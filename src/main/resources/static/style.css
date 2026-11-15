@@ -1,0 +1,142 @@
+:root {
+    --fondo: #f6f8fa;
+    --superficie: #ffffff;
+    --texto: #1f2933;
+    --texto-suave: #52606d;
+    --borde: #d5dbe1;
+    --acento: #0b6e99;
+    --aviso-fondo: #fff4d6;
+    --aviso-texto: #6b4e00;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --fondo: #12171c;
+        --superficie: #1b2229;
+        --texto: #e6ebf0;
+        --texto-suave: #a5b1bd;
+        --borde: #34404b;
+        --acento: #4fb3dd;
+        --aviso-fondo: #3b3115;
+        --aviso-texto: #f1d98a;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+    line-height: 1.5;
+}
+
+.cabecera,
+.pie {
+    padding: 1rem 1.5rem;
+}
+
+.cabecera h1 {
+    margin: 0;
+    font-size: 1.6rem;
+}
+
+.cabecera p,
+.pie p {
+    margin: 0.25rem 0 0;
+    color: var(--texto-suave);
+}
+
+.contenido {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1rem;
+    padding: 0 1.5rem 1rem;
+}
+
+.panel,
+.resultados {
+    background: var(--superficie);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.panel h2,
+.resultados h2 {
+    margin-top: 0;
+    font-size: 1.1rem;
+}
+
+.panel label {
+    display: block;
+    margin: 0.75rem 0 0.25rem;
+    font-size: 0.9rem;
+    color: var(--texto-suave);
+}
+
+.panel select,
+.panel input {
+    width: 100%;
+    padding: 0.4rem;
+}
+
+.panel button {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.5rem;
+    border: 0;
+    border-radius: 6px;
+    background: var(--acento);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.panel button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.grafico {
+    width: 100%;
+    min-height: 420px;
+}
+
+.resumen {
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--borde);
+}
+
+.resumen h3 {
+    margin: 0.5rem 0 0.25rem;
+    font-size: 1rem;
+}
+
+.aviso {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    background: var(--aviso-fondo);
+    color: var(--aviso-texto);
+}
+
+@media (max-width: 800px) {
+    .contenido {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ayuda {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+}
+
+.ayuda p {
+    margin: 0.35rem 0;
+}
