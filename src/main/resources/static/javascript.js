@@ -66,7 +66,9 @@
         selectedExplanation: document.querySelector("#selected-variable-explanation"),
         selectedReading: document.querySelector("#selected-variable-reading"),
         seriesChart: document.querySelector("#series-chart"),
+        seriesSource: document.querySelector("#series-source"),
         anomalyChart: document.querySelector("#anomaly-chart"),
+        anomalySource: document.querySelector("#anomaly-source"),
         relations: document.querySelector("#relations-list"),
         demoOptions: document.querySelector("#demo-options"),
         demoGuide: document.querySelector("#demo-guide"),
@@ -355,7 +357,7 @@
             ? "hay evidencia de tendencia"
             : "no hay evidencia suficiente de tendencia";
         document.querySelector("#trend-explanation").textContent =
-            `${subject}: la anomalía ${direction} ${formatNumber(trend.pendientePorDecada)} ${analisis.anomalias.unidad}/década; ${evidencia}.`;
+            `${subject}: la anomalía ${direction} ${formatNumber(trend.pendientePorDecada)} ${analisis.anomalias.unidad} por década; ${evidencia}.`;
     }
 
     function renderEvent(analisis) {
@@ -407,6 +409,33 @@
         });
     }
 
+    function updateChartSourceStatus(status) {
+        const variable = selectedVariable();
+        if (!variable) return;
+        const source = `Fuente: NASA Giovanni · ${variable.dataset} · ${status}`;
+        elements.seriesSource.textContent = source;
+        elements.anomalySource.textContent = source;
+    }
+
+    function renderChartSources(serie) {
+        const variable = selectedVariable();
+        if (!variable) return;
+        const ultimaFecha = serie.puntos
+            .filter(point => Number.isFinite(point.valor))
+            .reduce((latest, point) => point.fecha > latest ? point.fecha : latest, "");
+        const fecha = ultimaFecha
+            ? new Intl.DateTimeFormat("es-PE", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+                timeZone: "UTC"
+            }).format(new Date(`${ultimaFecha}T00:00:00Z`))
+            : "sin observaciones válidas";
+        const source = `Fuente: NASA Giovanni · ${variable.dataset} · datos hasta ${fecha}`;
+        elements.seriesSource.textContent = source;
+        elements.anomalySource.textContent = source;
+    }
+
     function resetAnalysisResults() {
         [elements.seriesChart, elements.anomalyChart].forEach((chart, index) => {
             if (typeof window.Plotly !== "undefined" && chart.classList.contains("js-plotly-plot")) {
@@ -432,6 +461,7 @@
         document.querySelector("#event-percentile").textContent = "—";
         document.querySelector("#event-message").textContent = "Calculando comparación histórica…";
         elements.relations.replaceChildren("Calculando relaciones…");
+        updateChartSourceStatus("cargando datos…");
     }
 
     function renderLag(rezago) {
@@ -469,11 +499,12 @@
         renderTrend(analisis);
         renderEvent(analisis);
         renderRelations(analisis);
+        renderChartSources(analisis.serie);
         const observaciones = analisis.serie.puntos.filter(point => Number.isFinite(point.valor)).length;
         elements.message.textContent = observaciones === 0
             ? "Datos insuficientes: no hay observaciones válidas en el periodo seleccionado."
             : `${observaciones.toLocaleString("es-PE")} observaciones en el periodo; resultados calculados con la misma selección.`;
-        setButtonState(elements.submit, "success", "Análisis actualizado");
+        setButtonState(elements.submit, "success", "Analizar");
     }
 
     function esErrorDeDatosInsuficientes(mensaje) {
@@ -489,6 +520,7 @@
             empty.textContent = "No hay observaciones suficientes para mostrar este gráfico.";
             chart.replaceChildren(empty);
         });
+        updateChartSourceStatus("sin datos válidos");
         setButtonState(elements.submit, "error", "Intentar de nuevo");
     }
 
@@ -496,6 +528,7 @@
         if (!validateSelection()) return false;
         setButtonState(elements.submit, "loading", "Analizando");
         elements.message.textContent = "Calculando serie, tendencia, evento y relaciones…";
+        updateChartSourceStatus("consultando el periodo…");
         const query = new URLSearchParams({
             var: estado.region,
             desde: estado.desde,
@@ -511,6 +544,7 @@
             } else {
                 elements.message.textContent = error.message;
                 elements.message.dataset.state = "error";
+                updateChartSourceStatus("periodo no disponible");
                 setButtonState(elements.submit, "error", "Intentar de nuevo");
             }
             return false;

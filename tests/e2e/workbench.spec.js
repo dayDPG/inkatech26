@@ -15,10 +15,16 @@ test.beforeEach(async ({ page }) => {
 
 test("una sola solicitud muestra serie, tendencia, evento y relaciones", async ({ page }) => {
     await expect(page.getByRole("heading", { name: "Analizador del fenómeno El Niño" })).toBeVisible();
+    await expect(page.locator("#plotly-status")).not.toBeVisible();
+    await expect(page.locator("#series-source")).toContainText("NASA Giovanni");
+    await expect(page.locator("#series-source")).toContainText("datos hasta");
+    await expect(page.locator("#anomaly-source")).toContainText("NASA Giovanni");
     await expect(page.locator("#series-chart.js-plotly-plot")).toBeVisible();
     await expect(page.locator("#anomaly-chart.js-plotly-plot")).toBeVisible();
     await expect(page.locator("#variable-select")).toHaveValue("sea-surface-temperature");
     await expect(page.locator("#trend-title")).toHaveText("Temperatura superficial del mar");
+    await expect(page.locator("#series-submit")).toHaveText("Analizar");
+    await expect(page.locator("#trend-explanation")).toContainText("evidencia de tendencia");
     await expect(page.locator("#significance-light")).not.toHaveText("Sin resultado");
     await expect(page.locator("#event-zscore")).not.toHaveText("—");
     await expect(page.locator(".relation-card")).toHaveCount(3);
@@ -201,6 +207,9 @@ test("muestra la lectura estadística junto al gráfico en escritorio y apila en
     expect(pageWidth).toBeLessThanOrEqual(390);
     await expect(page.locator("#series-chart")).toBeVisible();
     await expect(page.locator("#anomaly-chart")).toBeVisible();
+    const metricColumns = await page.locator(".trend-panel .trend-metrics")
+        .evaluate(element => getComputedStyle(element).gridTemplateColumns.split(" ").length);
+    expect(metricColumns).toBe(3);
 });
 
 test("muestra un error de periodo inválido sin pedir el análisis", async ({ page }) => {

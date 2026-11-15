@@ -13,8 +13,13 @@
 <body>
     <header class="site-header" aria-label="Cabecera principal">
         <div class="project-identity">
-            <span class="wordmark">DETECTIVE INKATECH</span>
-            <span class="edition">Perú · Analizador del fenómeno El Niño</span>
+            <span class="wordmark">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M2 9c3.3 0 3.3-3 6.7-3s3.3 3 6.6 3 3.4-3 6.7-3M2 15c3.3 0 3.3-3 6.7-3s3.3 3 6.6 3 3.4-3 6.7-3" />
+                </svg>
+                Detective del Clima
+            </span>
+            <span class="edition">Perú · El Niño</span>
         </div>
         <details class="project-menu">
             <summary>Demos históricas</summary>
@@ -30,8 +35,7 @@
                     <p class="workbench__label">Perú · Océano y costa</p>
                     <h1 id="workbench-title">Analizador del fenómeno El Niño</h1>
                     <p class="workbench__summary">
-                        Elige una variable, región y periodo una sola vez. El analizador compara la serie,
-                        su tendencia y sus relaciones en ese mismo periodo. No es un pronóstico.
+                        Elige variable, región y fechas. Todos los resultados usarán esa misma selección.
                     </p>
                 </div>
                 <p class="engine-status" id="plotly-status" role="status" aria-live="polite">
@@ -46,14 +50,14 @@
                         <select id="variable-select" name="variable" required aria-describedby="variable-help">
                             <option value="">Cargando variables…</option>
                         </select>
-                        <small id="variable-help">Elige la señal que quieres explorar.</small>
+                        <small id="variable-help">Elige qué señal quieres explorar.</small>
                     </div>
                     <div class="field">
                         <label for="region-select">Región y producto</label>
                         <select id="region-select" name="region" required aria-describedby="region-help" disabled>
                             <option value="">Selecciona primero una variable</option>
                         </select>
-                        <small id="region-help">La región indica dónde se midieron o estimaron los datos.</small>
+                        <small id="region-help">Indica dónde se midieron o estimaron.</small>
                     </div>
                     <div class="period-fields">
                         <div class="field">
@@ -64,6 +68,7 @@
                             <label for="date-to">Hasta</label>
                             <input id="date-to" name="hasta" type="date" required>
                         </div>
+                        <small class="period-format">Formato visible: día/mes/año.</small>
                     </div>
                     <button class="action-button" id="series-submit" type="submit">
                         <span class="action-button__label">Analizar</span>
@@ -76,7 +81,7 @@
                     <h2 id="selected-variable-title">Elige una variable</h2>
                     <p id="selected-variable-explanation">Aquí aparecerá qué mide y dónde se observa.</p>
                     <p class="selection-note__reading" id="selected-variable-reading">
-                        Selecciona una variable para conocer qué cambios pueden ser relevantes durante El Niño.
+                        Elige una señal para explorar cambios asociados a El Niño.
                     </p>
                 </section>
             </section>
@@ -105,6 +110,7 @@
                     <div class="chart-stage" id="series-chart" aria-label="Serie temporal original">
                         <div class="chart-empty"><p>Selecciona un periodo y pulsa Analizar.</p></div>
                     </div>
+                    <p class="chart-source" id="series-source"></p>
                 </section>
 
                 <section class="stats-grid" aria-label="Tendencia y último dato">
@@ -117,7 +123,7 @@
                         <span class="significance-light" id="significance-light">Sin calcular</span>
                         <dl class="trend-metrics">
                             <div>
-                                <dt>Cambio estimado por década</dt>
+                                <dt>Cambio por década</dt>
                                 <dd id="trend-slope">—</dd>
                             </div>
                             <div>
@@ -125,7 +131,7 @@
                                 <dd id="trend-pvalue">—</dd>
                             </div>
                             <div>
-                                <dt>Intervalo de confianza del 95 %</dt>
+                                <dt>Intervalo 95 %</dt>
                                 <dd id="trend-interval">—</dd>
                             </div>
                         </dl>
@@ -139,6 +145,7 @@
                             <div><dt>Percentil vs. mismo mes</dt><dd id="event-percentile">—</dd></div>
                         </dl>
                         <p id="event-message">El dato se compara con los mismos meses de años anteriores.</p>
+                        <p class="analysis-caution">Describe datos observados; no es un pronóstico.</p>
                     </article>
                 </section>
 
@@ -150,6 +157,7 @@
                     <div class="chart-stage chart-stage--compact" id="anomaly-chart" aria-label="Gráfico de anomalías">
                         <div class="chart-empty"><p>Se calculará junto con la serie.</p></div>
                     </div>
+                    <p class="chart-source" id="anomaly-source"></p>
                 </section>
             </section>
         </section>
@@ -158,8 +166,7 @@
             <header class="section-heading">
                 <h2 id="relations-title">Relaciones y rezagos</h2>
                 <p>
-                    Spearman resume la asociación entre anomalías mensuales del mismo periodo.
-                    Una asociación no demuestra causalidad ni predice impactos.
+                    Spearman compara anomalías mensuales. Una asociación no demuestra causalidad.
                 </p>
             </header>
             <div id="relations-list" class="relations-list" aria-live="polite">
@@ -171,9 +178,8 @@
             <header class="section-heading">
                 <h2 id="signal-guide-title">Cómo interpretar las señales</h2>
                 <p>
-                    Un calentamiento sostenido del mar, cambios en vientos, mayor lluvia en el norte o menor clorofila
-                    pueden ser compatibles con El Niño costero. Son pistas para explorar, no una alerta ni un pronóstico.
-                    Contrasta los resultados con ENFEN y otros indicadores climáticos.
+                    Calentamiento del mar, cambios del viento, lluvias intensas en el norte o baja clorofila pueden
+                    ser compatibles con El Niño. Contrasta estas señales con ENFEN y otros indicadores.
                 </p>
             </header>
         </section>
@@ -181,8 +187,8 @@
 
     <footer class="site-footer">
         <p>
-            Datos: NASA Giovanni — MODIS-Aqua, GPM IMERG y MERRA-2. Esta herramienta explora evidencia histórica;
-            no calcula probabilidades futuras ni reemplaza los comunicados de ENFEN.
+            Datos: NASA Giovanni y los productos indicados bajo cada gráfico. No es un pronóstico ni reemplaza
+            los comunicados de ENFEN.
         </p>
     </footer>
 

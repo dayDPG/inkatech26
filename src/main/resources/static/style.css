@@ -6,14 +6,6 @@
     box-sizing: border-box;
 }
 
-.chart-source {
-    margin: var(--space-xs) 0 0;
-    color: var(--color-ink-soft);
-    font-size: var(--text-xs);
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-}
-
 html,
 body {
     margin: 0;
@@ -70,10 +62,21 @@ main,
 }
 
 .wordmark {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
     font-family: var(--font-body);
     font-size: var(--text-lg);
     font-weight: 700;
-    letter-spacing: -0.02em;
+}
+
+.wordmark svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-linecap: round;
+    stroke-width: 1.7;
 }
 
 .edition,
@@ -83,8 +86,8 @@ main,
     font-size: var(--text-xs);
     font-variant-numeric: tabular-nums;
     font-weight: 700;
-    letter-spacing: 0.045em;
-    text-transform: uppercase;
+    letter-spacing: normal;
+    text-transform: none;
 }
 
 .edition {
@@ -181,17 +184,7 @@ main,
 }
 
 .engine-status {
-    align-self: start;
-    width: fit-content;
-    margin-block-end: 0;
-    padding: var(--space-xs) var(--space-sm);
-    border-block-start: var(--rule-strong) solid var(--color-accent);
-    background: var(--color-accent-soft);
-    color: var(--color-ink);
-}
-
-.engine-status[data-state="error"] {
-    border-color: var(--color-error);
+    display: none;
 }
 
 .chart-stage {
@@ -307,6 +300,12 @@ noscript {
     gap: var(--space-sm);
 }
 
+.period-fields > .period-format {
+    grid-column: 1 / -1;
+    color: var(--color-ink-soft);
+    font-size: var(--text-xs);
+}
+
 .action-button {
     display: inline-grid;
     place-items: center;
@@ -368,8 +367,8 @@ noscript {
     color: var(--color-accent);
     font-size: var(--text-xs);
     font-weight: 700;
-    letter-spacing: 0.045em;
-    text-transform: uppercase;
+    letter-spacing: normal;
+    text-transform: none;
 }
 
 .selection-note h2 {
@@ -398,6 +397,14 @@ noscript {
 
 .chart-stage--compact {
     min-height: 20rem;
+}
+
+.chart-source {
+    margin: var(--space-xs) 0 0;
+    color: var(--color-ink-soft);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
 }
 
 .chart-empty {
@@ -431,8 +438,8 @@ noscript {
     color: var(--color-accent);
     font-size: var(--text-xs);
     font-weight: 700;
-    letter-spacing: 0.045em;
-    text-transform: uppercase;
+    letter-spacing: normal;
+    text-transform: none;
 }
 
 .trend-panel h2,
@@ -447,10 +454,6 @@ noscript {
 .significance-light {
     justify-self: start;
     display: none;
-}
-
-.significance-light[data-state="unavailable"] {
-    color: var(--color-ink-soft);
 }
 
 .trend-metrics {
@@ -475,13 +478,6 @@ noscript {
     font-size: var(--text-xs);
 }
 
-.trend-metrics small {
-    display: block;
-    margin-block-start: var(--space-xs);
-    color: var(--color-ink-soft);
-    font-size: var(--text-xs);
-}
-
 .trend-metrics dd {
     margin: var(--space-2xs) 0 0;
     font-family: var(--font-body);
@@ -498,10 +494,17 @@ noscript {
     line-height: 1.2;
 }
 
-.event-panel > p:last-child {
+.event-panel #event-message {
     margin: 0;
     color: var(--color-ink-soft);
     font-size: var(--text-sm);
+}
+
+.analysis-caution {
+    max-width: 68ch;
+    margin-block-start: var(--space-md);
+    color: var(--color-ink-soft);
+    font-size: var(--text-xs);
 }
 
 .stats-grid {
@@ -543,8 +546,8 @@ noscript {
     color: var(--color-accent);
     font-size: var(--text-xs);
     font-weight: 700;
-    letter-spacing: 0.045em;
-    text-transform: uppercase;
+    letter-spacing: normal;
+    text-transform: none;
 }
 
 .demo-guide h2 {
@@ -771,6 +774,20 @@ noscript {
         padding-block: var(--space-md);
     }
 
+    .wordmark {
+        font-size: var(--text-xs);
+    }
+
+    .edition {
+        white-space: normal;
+    }
+
+    .project-menu summary {
+        min-width: 0;
+        padding-inline: var(--space-xs);
+        font-size: var(--text-xs);
+    }
+
     .trend-metrics div {
         padding-inline: var(--space-xs);
     }
@@ -787,7 +804,7 @@ noscript {
 
     .demo-guide {
         grid-template-columns: minmax(0, 1fr);
-        padding: var(--space-md);
+        padding-block: var(--space-md);
     }
 
     .demo-guide ul {
