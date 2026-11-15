@@ -1,0 +1,57 @@
+/* Hallmark tokens · Almanac · editorial scientific workbench */
+:root {
+    --color-paper: oklch(96% 0.014 92);
+    --color-paper-raised: oklch(99% 0.007 92);
+    --color-paper-muted: oklch(92% 0.018 92);
+    --color-ink: oklch(23% 0.025 244);
+    --color-ink-soft: oklch(40% 0.025 244);
+    --color-rule: oklch(78% 0.025 92);
+    --color-accent: oklch(42% 0.13 197);
+    --color-accent-ink: oklch(99% 0.007 92);
+    --color-accent-soft: oklch(90% 0.04 197);
+    --color-focus: oklch(45% 0.16 197);
+    --color-error: oklch(48% 0.16 28);
+    --color-error-soft: oklch(92% 0.035 28);
+    --color-success: oklch(42% 0.105 153);
+    --color-success-soft: oklch(91% 0.035 153);
+    --color-warning: oklch(48% 0.105 77);
+    --color-warning-soft: oklch(92% 0.04 77);
+    /* Plotly 4 does not parse oklch values; keep this compatibility bridge aligned with the palette. */
+    --plot-paper: #ffffff;
+    --plot-ink: #1b2732;
+    --plot-rule: #c9c1aa;
+    --plot-accent: #007079;
+    --plot-warning: #936000;
+
+    --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    --font-body: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", sans-serif;
+    --text-xs: 0.875rem;
+    --text-sm: 1rem;
+    --text-base: 1rem;
+    --text-lg: 1.25rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 2rem;
+    --text-display: 3rem;
+
+    --space-2xs: 0.25rem;
+    --space-xs: 0.5rem;
+    --space-sm: 0.75rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    --space-3xl: 4rem;
+    --space-4xl: 6rem;
+
+    --radius-sm: 0.25rem;
+    --rule-thin: 0.0625rem;
+    --rule-strong: 0.125rem;
+    --page-gutter: clamp(1rem, 4vw, 4rem);
+    --page-width: 92rem;
+
+    --dur-short: 120ms;
+    --dur-medium: 240ms;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
