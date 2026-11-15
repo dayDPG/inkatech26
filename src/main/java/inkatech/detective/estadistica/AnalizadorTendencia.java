@@ -5,11 +5,13 @@ import inkatech.detective.domain.Tendencia;
 import java.util.Objects;
 import org.apache.commons.math3.distribution.TDistribution;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.springframework.stereotype.Component;
 
 /**
  * Combina una pendiente robusta Theil-Sen, significancia Mann-Kendall y un
  * intervalo de confianza del 95 % obtenido mediante regresion lineal.
  */
+@Component
 public final class AnalizadorTendencia {
 
     private static final double YEARS_PER_DECADE = 10.0;

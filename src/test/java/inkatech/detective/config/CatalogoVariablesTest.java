@@ -9,15 +9,20 @@ class CatalogoVariablesTest {
     private final CatalogoVariables catalogo = new CatalogoVariables();
 
     @Test
-    void containsTheFourAgreedVariablesWithCompleteMetadata() {
+    void containsTheNineAvailableSeriesWithCompleteMetadata() {
         assertThat(catalogo.listar())
-                .hasSize(4)
+                .hasSize(9)
                 .extracting(VariableConfig::id)
                 .containsExactly(
-                        "sea-surface-temperature",
-                        "precipitation",
-                        "eastward-wind",
-                        "chlorophyll-a");
+                        "sea-surface-temperature-total",
+                        "chlorophyll-a-total",
+                        "chlorophyll-a-norte",
+                        "chlorophyll-a-centro-sur",
+                        "precipitation-norte",
+                        "precipitation-centro",
+                        "precipitation-lima",
+                        "precipitation-norte-final",
+                        "eastward-wind-pacifico");
 
         assertThat(catalogo.listar()).allSatisfy(variable -> {
             assertThat(variable.definicion()).isNotBlank();
@@ -25,15 +30,16 @@ class CatalogoVariablesTest {
             assertThat(variable.dataset()).isNotBlank();
             assertThat(variable.expectativaElNino()).isNotBlank();
             assertThat(variable.archivo()).startsWith("data/raw/");
+            assertThat(getClass().getClassLoader().getResource(variable.archivo())).isNotNull();
         });
     }
 
     @Test
     void findsVariablesByTheirStableIdentifier() {
-        assertThat(catalogo.buscar("precipitation"))
+        assertThat(catalogo.buscar("precipitation-norte"))
                 .get()
                 .extracting(VariableConfig::nombre)
-                .isEqualTo("Precipitacion");
+                .isEqualTo("Precipitacion (Tumbes-Piura)");
         assertThat(catalogo.buscar("unknown")).isEmpty();
     }
 }

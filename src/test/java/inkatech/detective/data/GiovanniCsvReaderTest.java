@@ -17,7 +17,7 @@ class GiovanniCsvReaderTest {
 
     private final GiovanniCsvReader reader = new GiovanniCsvReader();
     private final VariableConfig variable = new CatalogoVariables()
-            .buscar("sea-surface-temperature")
+            .buscar("sea-surface-temperature-total")
             .orElseThrow();
 
     @TempDir
@@ -36,7 +36,7 @@ class GiovanniCsvReaderTest {
 
         SerieTemporal result = reader.leer(csv, variable);
 
-        assertThat(result.variableId()).isEqualTo("sea-surface-temperature");
+        assertThat(result.variableId()).isEqualTo("sea-surface-temperature-total");
         assertThat(result.unidad()).isEqualTo("°C");
         assertThat(result.puntos()).hasSize(3);
         assertThat(result.puntos().get(0).fecha()).isEqualTo(LocalDate.of(2020, 1, 1));
@@ -50,7 +50,7 @@ class GiovanniCsvReaderTest {
         Path empty = writeCsv("# metadata only\ndate,value\n");
         assertThatThrownBy(() -> reader.leer(empty, variable))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("no contiene datos");
+                .hasMessageContaining("no contiene observaciones");
 
         Path malformed = writeCsv("date,value\n2020-01-01,not-a-number\n");
         assertThatThrownBy(() -> reader.leer(malformed, variable))
